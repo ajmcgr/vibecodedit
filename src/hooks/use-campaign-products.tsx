@@ -193,5 +193,5 @@ export const useLaunchedProductCount = () =>
       ]);
       return (productsRes.count || 0) + ((submissionsRes as any)?.count || 0);
     },
-    staleTime: 30 * 60 * 1000,
+    staleTime: 60 * 1000,
   });
