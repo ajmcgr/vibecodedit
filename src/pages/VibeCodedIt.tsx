@@ -220,10 +220,10 @@ const VibeCodedIt = () => {
         <section className="relative pt-8 sm:pt-10 lg:pl-20">
           <div className="w-full px-4">
             <div className="relative w-full px-6 py-8 sm:py-10 text-center bg-[#fcfcfc] dark:bg-card dark:border dark:border-border rounded-2xl">
-            <h1 className="mx-auto max-w-2xl text-4xl sm:text-6xl font-semibold tracking-tight text-foreground">
-              Vibe Coded It
+            <h1 className="mx-auto max-w-3xl text-5xl sm:text-7xl font-semibold tracking-tight text-foreground">
+              Vibe Coded___?
             </h1>
-            <p className="mx-auto mt-1 max-w-xl text-sm text-muted-foreground">
+            <p className="mx-auto mt-3 max-w-xl text-lg sm:text-xl text-muted-foreground">
               Launch your vibe coded startup and join a growing community of founders.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-4">

@@ -330,7 +330,7 @@ export const BuilderWall = ({
       <div className="w-full space-y-8">
         {rows.map((row, rowIndex) => (
           <div key={`row-${rowIndex}`} className="space-y-8">
-            {rowIndex % 5 === 0 && <AdRow startIndex={(rowIndex / 5) * 4} />}
+            {rowIndex % 5 === 0 && <AdRow startIndex={(rowIndex / 5) * 2} view={view} />}
             <div className={gridClass}>
               {row.map((product) => (
                 <BuilderCard
