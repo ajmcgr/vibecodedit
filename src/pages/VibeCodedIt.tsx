@@ -221,10 +221,10 @@ const VibeCodedIt = () => {
           <div className="w-full px-4">
             <div className="relative w-full px-6 py-8 sm:py-10 text-center bg-[#fcfcfc] dark:bg-card dark:border dark:border-border rounded-2xl">
             <h1 className="mx-auto max-w-2xl text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
-              Discover the best vibe coded startups
+              Vibe Coded It
             </h1>
             <p className="mx-auto mt-1 max-w-xl text-sm text-muted-foreground">
-              Whether you were laid off, left your job, or simply decided to build,
+              Discover the best vibe coded startups. Whether you were laid off, left your job, or simply decided to build,
               launch your vibe coded startup and join a growing community of founders
               creating the next generation of software.
             </p>
@@ -299,7 +299,7 @@ const VibeCodedIt = () => {
 
             <div className="space-y-5 text-lg leading-8 text-foreground/90">
               <p className="text-center text-base text-muted-foreground">
-                An open letter to anyone who was just laid off.
+                An open letter to anyone who was just laid off, left their job, or simply decided to build, launch your vibe coded startup and join a growing community of founders creating the next generation of software.
               </p>
 
               <p>
