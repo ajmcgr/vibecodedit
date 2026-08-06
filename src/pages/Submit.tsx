@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, Loader2, Rocket } from 'lucide-react';
+import { ArrowRight, Loader2, Rocket, Sparkles } from 'lucide-react';
+
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,8 +60,13 @@ const Submit = () => {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<SubmissionInput | null>(null);
   const [categories, setCategories] = useState<string[]>(FALLBACK_CATEGORIES);
+  const [autofillUrl, setAutofillUrl] = useState('');
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillError, setAutofillError] = useState<string | null>(null);
+  const [autofillNote, setAutofillNote] = useState<string | null>(null);
 
   const pageUrl = `${CAMPAIGN_ORIGIN}/submit`;
+
 
   useEffect(() => {
     (async () => {
@@ -75,6 +81,69 @@ const Submit = () => {
   ) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const accept = useMemo(() => ACCEPTED_IMAGE_TYPES.join(','), []);
+
+  /** Turns a data URL returned by the enrich function into a File for upload. */
+  const dataUrlToFile = async (dataUrl: string, name: string) => {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    if (!ACCEPTED_IMAGE_TYPES.includes(blob.type)) return null;
+    const ext = blob.type.split('/')[1]?.replace('jpeg', 'jpg') || 'png';
+    return new File([blob], `${name}.${ext}`, { type: blob.type });
+  };
+
+  const handleAutofill = async () => {
+    const url = autofillUrl.trim();
+    if (!url) {
+      setAutofillError('Paste your product URL first.');
+      return;
+    }
+    setAutofilling(true);
+    setAutofillError(null);
+    setAutofillNote(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('enrich-product', {
+        body: { url, categories },
+      });
+      const payload = data as any;
+      if (error || payload?.error) {
+        setAutofillError(payload?.error || 'AI autofill failed. Please fill the form manually.');
+        return;
+      }
+
+      setForm((f) => ({
+        ...f,
+        app_name: payload.app_name || f.app_name,
+        website_url: payload.website_url || url,
+        description: payload.description || f.description,
+        category: payload.category || f.category,
+      }));
+
+      const filled: string[] = ['details'];
+      if (payload.screenshot?.dataUrl) {
+        const file = await dataUrlToFile(payload.screenshot.dataUrl, 'screenshot');
+        if (file) {
+          setScreenshot(file);
+          filled.push('screenshot');
+        }
+      }
+      if (payload.logo?.dataUrl) {
+        const file = await dataUrlToFile(payload.logo.dataUrl, 'logo');
+        if (file) {
+          setLogo(file);
+          filled.push('logo');
+        }
+      }
+
+      setErrors({});
+      setAutofillNote(`Filled in your ${filled.join(', ')}. Review and edit anything before submitting.`);
+    } catch (err: any) {
+      setAutofillError(err?.message || 'AI autofill failed. Please fill the form manually.');
+    } finally {
+      setAutofilling(false);
+    }
+  };
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +222,44 @@ const Submit = () => {
                 Add your app to the Vibe Coded It wall. No account needed — it publishes instantly.
               </p>
 
+              <div className="mt-6 rounded-xl border border-border bg-muted/30 p-5">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <h2 className="text-sm font-semibold text-foreground">Autofill with AI</h2>
+                </div>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Enter your URL and our AI grabs your name, description, category, screenshot and
+                  logo — then fills the whole form for you.
+                </p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    id="autofill_url"
+                    type="url"
+                    value={autofillUrl}
+                    onChange={(e) => setAutofillUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        void handleAutofill();
+                      }
+                    }}
+                    placeholder="https://yourapp.com"
+                    aria-label="Your product URL"
+                    className="flex-1"
+                  />
+                  <Button type="button" onClick={handleAutofill} disabled={autofilling} className="gap-2 sm:w-auto">
+                    {autofilling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    {autofilling ? 'Analysing…' : 'Autofill'}
+                  </Button>
+                </div>
+                {autofillError && <p className="mt-2 text-xs text-destructive">{autofillError}</p>}
+                {autofillNote && !autofillError && (
+                  <p className="mt-2 text-xs text-muted-foreground">{autofillNote}</p>
+                )}
+              </div>
+
               <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
+
                 <Field id="app_name" label="App name" error={errors.app_name}>
                   <Input id="app_name" value={form.app_name} onChange={set('app_name')} maxLength={FIELD_LIMITS.app_name} placeholder="Acme AI" />
                 </Field>
@@ -198,7 +304,12 @@ const Submit = () => {
                   <Input id="founder_username" value={form.founder_username} onChange={set('founder_username')} maxLength={FIELD_LIMITS.founder_username} placeholder="yourhandle" />
                 </Field>
 
-                <Field id="screenshot" label="Screenshot" error={errors.screenshot} hint="PNG, JPG, WEBP or GIF. Max 5MB.">
+                <Field
+                  id="screenshot"
+                  label="Screenshot"
+                  error={errors.screenshot}
+                  hint={screenshot ? `Selected: ${screenshot.name}` : 'PNG, JPG, WEBP or GIF. Max 5MB.'}
+                >
                   <Input
                     id="screenshot"
                     type="file"
@@ -208,7 +319,12 @@ const Submit = () => {
                   />
                 </Field>
 
-                <Field id="logo" label="Logo (optional)" error={errors.logo} hint="Square works best. Max 5MB.">
+                <Field
+                  id="logo"
+                  label="Logo (optional)"
+                  error={errors.logo}
+                  hint={logo ? `Selected: ${logo.name}` : 'Square works best. Max 5MB.'}
+                >
                   <Input
                     id="logo"
                     type="file"
@@ -217,6 +333,7 @@ const Submit = () => {
                     className="cursor-pointer file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-muted file:px-2 file:py-1 file:text-xs"
                   />
                 </Field>
+
 
                 <div className="flex items-start gap-3 rounded-lg bg-muted/30 p-4">
                   <Checkbox
