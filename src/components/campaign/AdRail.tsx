@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Plus } from 'lucide-react';
 
@@ -226,41 +227,61 @@ const AdvertisePromo = ({ compact = false }: { compact?: boolean }) => (
   </a>
 );
 
-/** Slim sponsor banner for mobile — used under the header and above the bottom nav. */
-export const AdBanner = ({ className = '' }: { className?: string }) => {
+/** Pill-shaped ad chip for the mobile marquees. */
+const AdChip = ({ slot }: { slot: SponsorSlot }) => (
+  <button
+    type="button"
+    onClick={() => open(slot.href, slot.id)}
+    className="flex shrink-0 items-center gap-2 rounded-full border border-border bg-card px-3.5 py-2 text-left"
+  >
+    <img
+      src={slot.iconUrl || defaultProductIcon}
+      alt=""
+      width={22}
+      height={22}
+      loading="lazy"
+      className="h-[22px] w-[22px] shrink-0 rounded-full object-cover"
+    />
+    <span className="whitespace-nowrap text-sm font-semibold text-foreground">{slot.name}</span>
+  </button>
+);
+
+/** Empty slot chip with the advertise CTA. */
+const AdChipPlaceholder = () => (
+  <a
+    href={ADVERTISE_URL}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex shrink-0 items-center gap-1.5 rounded-full border border-dashed border-border bg-background px-3.5 py-2"
+  >
+    <Plus className="h-4 w-4 text-muted-foreground" />
+    <span className="whitespace-nowrap text-sm text-muted-foreground">Your ad here</span>
+  </a>
+);
+
+/** Horizontally scrolling ad marquee used in the mobile header and footer bars. */
+export const AdBanner = ({
+  reverse = false,
+  className = '',
+}: {
+  reverse?: boolean;
+  className?: string;
+}) => {
   const { data: slots = [] } = useSponsorSlots();
-  const slot = slots[0];
+  const items: Array<SponsorSlot | null> = [...slots.slice(0, 5), null];
+  const loop = [...items, ...items];
 
   return (
-    <div className={`lg:hidden ${className}`}>
-      <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-        Sponsored
-      </p>
-      {slot ? (
-        <button
-          type="button"
-          onClick={() => open(slot.href, slot.id)}
-          className="flex w-full items-center gap-2.5 rounded-lg bg-muted/30 px-3 py-2 text-left transition-colors hover:bg-muted/60"
-        >
-          <img
-            src={slot.iconUrl || defaultProductIcon}
-            alt=""
-            width={28}
-            height={28}
-            loading="lazy"
-            className="h-7 w-7 shrink-0 rounded"
-          />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium text-foreground">{slot.name}</span>
-            {slot.tagline && (
-              <span className="block truncate text-xs text-muted-foreground">{slot.tagline}</span>
-            )}
-          </span>
-          <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
-        </button>
-      ) : (
-        <AdvertisePromo compact />
-      )}
+    <div className={`overflow-hidden lg:hidden ${className}`}>
+      <div className={`ad-marquee-track gap-2 ${reverse ? 'is-reverse' : ''}`}>
+        {loop.map((item, i) =>
+          item ? (
+            <AdChip key={`chip-${item.id}-${i}`} slot={item} />
+          ) : (
+            <AdChipPlaceholder key={`chip-empty-${i}`} />
+          ),
+        )}
+      </div>
     </div>
   );
 };
@@ -306,11 +327,23 @@ export const AdRow = ({
 };
 
 
-/** Slim fixed sponsor banner on mobile. */
-const AdRail = () => (
-  <div className="fixed inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] z-40 border-y border-border/60 bg-background/95 px-4 py-2 backdrop-blur lg:hidden">
-    <AdBanner />
-  </div>
-);
+/** Fixed scrolling ad bars pinned to the top and bottom on mobile, like Launch. */
+const AdRail = () => {
+  useEffect(() => {
+    document.documentElement.classList.add('has-mobile-marquee');
+    return () => document.documentElement.classList.remove('has-mobile-marquee');
+  }, []);
+
+  return (
+    <>
+      <div className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/95 py-2 pt-[calc(0.5rem+env(safe-area-inset-top))] backdrop-blur lg:hidden">
+        <AdBanner />
+      </div>
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-background/95 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        <AdBanner reverse />
+      </div>
+    </>
+  );
+};
 
 export default AdRail;
