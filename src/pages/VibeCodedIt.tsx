@@ -264,7 +264,7 @@ const VibeCodedIt = () => {
                   </button>
                 ) : (
                   rawCount > 0 && (
-                    <>Over <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
+                    <><span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
                   )
                 )}
               </p>
