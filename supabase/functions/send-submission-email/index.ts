@@ -47,7 +47,14 @@ const buildHtml = (opts: {
   html += '<h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:700;color:#111827;">' + app + ' is live! \uD83D\uDE80</h1>';
   html += '<p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#374151;">Hi ' + name + ', thanks for adding your app. ';
   html += '<strong>' + app + '</strong> is now on the Vibe Coded It wall for everyone to discover.</p>';
-  html += '<p style="margin:0 0 28px 0;font-size:16px;line-height:1.6;color:#374151;">Want more reach? List it on Launch to get in front of thousands of founders, appear in the daily leaderboard, and earn a permanent product page.</p>';
+  html += '<p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#374151;">Ready for the full launch experience? List on Launch to get upvotes, founder feedback, a public profile, and rankings in front of the world\u2019s largest vibe coding community.</p>';
+  html += '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7f8fa;border:1px solid #e8eaee;border-radius:10px;margin:0 0 28px 0;"><tr><td style="padding:20px 22px;">';
+  html += '<p style="margin:0 0 12px 0;font-size:15px;font-weight:600;color:#111827;">What you get on Launch</p>';
+  html += '<p style="margin:0 0 8px 0;font-size:15px;line-height:1.5;color:#374151;"><span style="color:#2f5fe0;">\u2713</span> Appear on Launch rankings and newsletters</p>';
+  html += '<p style="margin:0 0 8px 0;font-size:15px;line-height:1.5;color:#374151;"><span style="color:#2f5fe0;">\u2713</span> Build a founder profile and collect reviews</p>';
+  html += '<p style="margin:0 0 8px 0;font-size:15px;line-height:1.5;color:#374151;"><span style="color:#2f5fe0;">\u2713</span> Earn a permanent, SEO-friendly product page</p>';
+  html += '<p style="margin:0;font-size:15px;line-height:1.5;color:#374151;"><span style="color:#2f5fe0;">\u2713</span> Get in front of thousands of founders</p>';
+  html += '</td></tr></table>';
   html += '<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:#2f5fe0;border-radius:8px;">';
   html += '<a href="' + launchUrl + '" style="display:inline-block;padding:15px 28px;font-size:16px;font-weight:600;color:#ffffff;text-decoration:none;">List it on Launch</a>';
   html += '</td></tr></table>';

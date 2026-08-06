@@ -117,7 +117,7 @@ const Submit = () => {
       <CampaignSideNav />
 
       <main className="lg:pl-20">
-        <div className="mx-auto w-full max-w-2xl px-4 pt-8 pb-24">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24">
           {done ? (
             <div className="rounded-xl border bg-card p-8 text-center">
               <Rocket className="mx-auto h-10 w-10 text-primary" />
@@ -143,7 +143,8 @@ const Submit = () => {
               </div>
             </div>
           ) : (
-            <>
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
+              <div>
               <h1 className="text-2xl font-bold tracking-tight">Submit Your App</h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 Add your app to the Vibe Coded It wall. No account needed — it publishes instantly.
@@ -234,33 +235,36 @@ const Submit = () => {
                   Submit Your App
                 </Button>
 
-                <div className="rounded-xl border border-border bg-card p-6">
-                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="space-y-2">
-                      <h3 className="text-base font-semibold text-foreground">Ready for the full launch experience?</h3>
-                      <p className="text-sm text-muted-foreground">
-                        List on Launch to get upvotes, founder feedback, a public profile, and rankings in front of the world’s largest vibe coding community.
-                      </p>
-                      <ul className="hidden text-sm text-muted-foreground sm:block">
-                        <li className="flex items-center gap-2">
-                          <span className="text-primary">✓</span> Appear on Launch rankings and newsletters
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-primary">✓</span> Build a founder profile and collect reviews
-                        </li>
-                      </ul>
-                    </div>
-                    <Button asChild size="lg" className="h-12 gap-2 px-6 text-base whitespace-nowrap">
-                      <a href={launchSubmitUrl()} target="_blank" rel="noopener noreferrer">
-                        List it on Launch <ArrowRight className="h-5 w-5" />
-                      </a>
-                    </Button>
-                  </div>
-                </div>
-
-
               </form>
-            </>
+              </div>
+
+              <aside className="lg:sticky lg:top-24 lg:self-start">
+                <div className="rounded-xl border border-border bg-card p-6">
+                  <h2 className="text-lg font-semibold text-foreground">Ready for the full launch experience?</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    List on Launch to get upvotes, founder feedback, a public profile, and rankings
+                    in front of the world’s largest vibe coding community.
+                  </p>
+                  <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                    {[
+                      'Appear on Launch rankings and newsletters',
+                      'Build a founder profile and collect reviews',
+                      'Earn a permanent, SEO-friendly product page',
+                      'Get in front of thousands of founders',
+                    ].map((benefit) => (
+                      <li key={benefit} className="flex items-start gap-2">
+                        <span className="text-primary">✓</span> {benefit}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button asChild size="lg" className="mt-6 h-12 w-full gap-2 text-base">
+                    <a href={launchSubmitUrl()} target="_blank" rel="noopener noreferrer">
+                      List it on Launch <ArrowRight className="h-5 w-5" />
+                    </a>
+                  </Button>
+                </div>
+              </aside>
+            </div>
           )}
         </div>
       </main>

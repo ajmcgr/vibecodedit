@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, DollarSign, Settings } from 'lucide-react';
+import { Home, Compass, DollarSign, LifeBuoy, Settings } from 'lucide-react';
+
+const SUPPORT_MAILTO = 'mailto:alex@trylaunch.ai?subject=Vibe%20Coded%20It%20support';
 
 const itemBase =
   'flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground';
@@ -48,6 +50,14 @@ export const CampaignSideNav = () => {
           >
             <DollarSign className="h-5 w-5" />
           </a>
+          <a
+            href={SUPPORT_MAILTO}
+            aria-label="Support"
+            title="Support"
+            className={itemBase}
+          >
+            <LifeBuoy className="h-5 w-5" />
+          </a>
         </div>
 
         <a
@@ -84,6 +94,10 @@ export const CampaignSideNav = () => {
         >
           <DollarSign className="h-5 w-5" />
           Advertise
+        </a>
+        <a href={SUPPORT_MAILTO} aria-label="Support" className={mobileItem}>
+          <LifeBuoy className="h-5 w-5" />
+          Support
         </a>
         <a
           href="https://trylaunch.ai/auth"
