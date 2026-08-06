@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import AdRail from "@/components/campaign/AdRail";
 
 // Standalone Vibe Coded It frontend: the homepage is the campaign page.
 // Everything account/payment/submission related lives on trylaunch.ai.
@@ -32,9 +33,11 @@ const ScrollToTop = () => {
 const AppContent = () => {
   const location = useLocation();
   const isCampaignCollections = location.pathname === '/collections';
+  const isSubmit = location.pathname === '/submit';
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen min-[1500px]:pr-[220px]">
+      <AdRail />
       <main className="flex-1">
 
         <Suspense fallback={

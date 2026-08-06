@@ -159,6 +159,10 @@ const AdRail = () => {
   const { data: slots = [] } = useSponsorSlots();
 
   return (
+    <>
+    <div className="fixed inset-x-0 bottom-[64px] z-30 border-t border-border/60 bg-background/95 px-4 py-2 backdrop-blur lg:hidden">
+      <AdBanner />
+    </div>
     <aside
       aria-label="Sponsored"
       className="fixed right-0 top-16 bottom-0 hidden w-[220px] overflow-y-auto border-l border-border/60 px-4 py-5 min-[1500px]:block"
@@ -173,6 +177,7 @@ const AdRail = () => {
         <AdvertisePromo />
       </div>
     </aside>
+    </>
   );
 };
 
