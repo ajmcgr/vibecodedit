@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
+import { AdBanner } from '@/components/campaign/AdRail';
 import CollectionsPreview from '@/components/CollectionsPreview';
 import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 import { CAMPAIGN_SLUG, setCampaignIntent, trackCampaignEvent } from '@/lib/campaign';
@@ -36,6 +37,10 @@ const VibeCodedItCollections = () => {
       <CampaignHeader />
       <CampaignSideNav />
 
+      <div className="px-4 pt-3 lg:pl-20">
+        <AdBanner />
+      </div>
+
       <main className="lg:pl-20">
         <div className="w-full px-4 pt-4 pb-8">
           <h1 className="text-2xl font-bold tracking-tight">Collections</h1>
@@ -63,7 +68,7 @@ const VibeCodedItCollections = () => {
         </Button>
       </div>
 
-      <div className="h-[64px] lg:hidden" aria-hidden />
+      <div className="h-[200px] lg:hidden" aria-hidden />
     </>
   );
 };

@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import AdRail from "@/components/campaign/AdRail";
 
 // Standalone Vibe Coded It frontend: the homepage is the campaign page.
 // Everything account/payment/submission related lives on trylaunch.ai.
@@ -32,13 +33,68 @@ const ScrollToTop = () => {
 const AppContent = () => {
   const location = useLocation();
   const isCampaignCollections = location.pathname === '/collections';
+  const isSubmit = location.pathname === '/submit';
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen min-[1500px]:pr-[220px]">
+      <AdRail />
       <main className="flex-1">
 
         <Suspense fallback={
-          isCampaignCollections ? (
+          isSubmit ? (
+            <div className="min-h-screen bg-background" aria-label="Loading" role="status">
+              {/* campaign header */}
+              <div className="border-b border-border/60">
+                <div className="lg:pl-20 px-4 h-16 flex items-center gap-6">
+                  <div className="h-10 w-10 rounded-lg bg-muted/60 animate-pulse lg:hidden" />
+                  <div className="flex-1">
+                    <div className="h-9 w-full rounded-md bg-muted/50 animate-pulse" />
+                  </div>
+                  <div className="h-9 w-24 rounded-md bg-muted/60 animate-pulse" />
+                </div>
+              </div>
+              {/* left nav rail */}
+              <div className="hidden lg:flex fixed left-0 top-0 bottom-0 w-20 flex-col items-center gap-6 border-r border-border/60 pt-5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-10 w-10 rounded-xl bg-muted/50 animate-pulse" />
+                ))}
+              </div>
+              <div className="lg:pl-20">
+                <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24">
+                  <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
+                    <div>
+                      <div className="h-8 w-56 rounded-md bg-muted/60 animate-pulse" />
+                      <div className="mt-3 h-4 w-80 max-w-full rounded bg-muted/50 animate-pulse" />
+                      <div className="mt-8 space-y-5">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div key={i} className="space-y-2">
+                            <div className="h-4 w-28 rounded bg-muted/50 animate-pulse" />
+                            <div className="h-10 w-full rounded-md bg-muted/40 animate-pulse" />
+                          </div>
+                        ))}
+                        <div className="h-20 w-full rounded-lg bg-muted/30 animate-pulse" />
+                        <div className="h-11 w-full rounded-md bg-muted/60 animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-border bg-card p-6">
+                      <div className="h-6 w-3/4 rounded bg-muted/60 animate-pulse" />
+                      <div className="mt-3 space-y-2">
+                        <div className="h-4 w-full rounded bg-muted/50 animate-pulse" />
+                        <div className="h-4 w-5/6 rounded bg-muted/50 animate-pulse" />
+                      </div>
+                      <div className="mt-5 space-y-2">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className="h-4 w-4/5 rounded bg-muted/40 animate-pulse" />
+                        ))}
+                      </div>
+                      <div className="mt-6 h-12 w-full rounded-md bg-muted/60 animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <span className="sr-only">Loading</span>
+            </div>
+          ) : isCampaignCollections ? (
             <div className="min-h-screen bg-background" aria-label="Loading" role="status">
               {/* campaign header */}
               <div className="border-b border-border/60">

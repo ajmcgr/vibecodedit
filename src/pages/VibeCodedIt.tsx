@@ -24,6 +24,7 @@ import { BuilderWall } from '@/components/campaign/BuilderWall';
 import { ViewToggle } from '@/components/ViewToggle';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
+import { AdBanner } from '@/components/campaign/AdRail';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   CAMPAIGN_SLUG,
@@ -210,6 +211,9 @@ const VibeCodedIt = () => {
       {/* Campaign header */}
       <CampaignHeader />
       <CampaignSideNav />
+      <div className="px-4 pt-3 lg:pl-20">
+        <AdBanner />
+      </div>
 
       {/* Hero */}
       {showHero && !user && !searchTerm && (
@@ -495,7 +499,7 @@ const VibeCodedIt = () => {
           </div>
         </DialogContent>
       </Dialog>
-      <div className="h-[64px] lg:hidden" aria-hidden />
+      <div className="h-[200px] lg:hidden" aria-hidden />
     </>
   );
 };
