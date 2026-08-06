@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
+import { AdBanner } from '@/components/campaign/AdRail';
 import { supabase } from '@/integrations/supabase/client';
 import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 import { trackCampaignEvent } from '@/lib/campaign';
@@ -115,6 +116,10 @@ const Submit = () => {
 
       <CampaignHeader />
       <CampaignSideNav />
+
+      <div className="px-4 pt-3 lg:pl-20">
+        <AdBanner />
+      </div>
 
       <main className="lg:pl-20">
         <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24">
@@ -240,7 +245,7 @@ const Submit = () => {
 
               <aside className="lg:sticky lg:top-24 lg:self-start">
                 <div className="rounded-xl border border-border bg-card p-6">
-                  <h2 className="text-lg font-semibold text-foreground">Ready for the full launch experience?</h2>
+                  <h2 className="text-lg font-semibold text-foreground">Want a more complete launch experience?</h2>
                   <p className="mt-2 text-sm text-muted-foreground">
                     List on Launch to get upvotes, founder feedback, a public profile, and rankings
                     in front of the world’s largest vibe coding community.
