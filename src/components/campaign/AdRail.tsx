@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Plus } from 'lucide-react';
 
 import defaultProductIcon from '@/assets/default-product-icon.png';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,33 +68,52 @@ const SponsorCard = ({ slot }: { slot: SponsorSlot }) => (
   <button
     type="button"
     onClick={() => open(slot.href, slot.id)}
-    className="w-full rounded-lg bg-muted/30 p-3 text-left transition-colors hover:bg-muted/60"
+    className="w-full rounded-lg border border-dashed border-border p-3 text-left transition-colors hover:border-foreground/30 hover:bg-muted/30"
   >
-    {slot.screenshotUrl && (
+    {slot.screenshotUrl ? (
       <img
         src={slot.screenshotUrl}
         alt={`${slot.name} screenshot`}
         width={180}
-        height={101}
+        height={72}
         loading="lazy"
-        className="mb-2 aspect-video w-full rounded-md object-cover"
+        className="mb-3 h-[72px] w-full rounded-md object-cover"
       />
+    ) : (
+      <span className="mb-3 flex h-[72px] w-full items-center justify-center rounded-md bg-muted/50">
+        <img
+          src={slot.iconUrl || defaultProductIcon}
+          alt=""
+          width={32}
+          height={32}
+          loading="lazy"
+          className="h-8 w-8 rounded"
+        />
+      </span>
     )}
-    <div className="flex items-center gap-2">
-      <img
-        src={slot.iconUrl || defaultProductIcon}
-        alt=""
-        width={24}
-        height={24}
-        loading="lazy"
-        className="h-6 w-6 shrink-0 rounded"
-      />
-      <span className="truncate text-sm font-medium text-foreground">{slot.name}</span>
-    </div>
+    <span className="block text-sm font-semibold text-foreground">{slot.name}</span>
     {slot.tagline && (
-      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{slot.tagline}</p>
+      <span className="mt-0.5 block line-clamp-2 text-sm text-muted-foreground">{slot.tagline}</span>
     )}
   </button>
+);
+
+/** Empty dashed placeholder slot, matching the Launch ad rail. */
+const AdPlaceholder = () => (
+  <a
+    href={ADVERTISE_URL}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="block rounded-lg border border-dashed border-border p-3 text-left transition-colors hover:border-foreground/30 hover:bg-muted/30"
+  >
+    <span className="mb-3 flex h-[72px] w-full items-center justify-center rounded-md bg-muted/50">
+      <Plus className="h-4 w-4 text-muted-foreground" />
+    </span>
+    <span className="block text-sm font-semibold text-foreground">Your ad here</span>
+    <span className="mt-0.5 block text-sm text-muted-foreground">
+      Reach vibe coders launching every day.
+    </span>
+  </a>
 );
 
 const AdvertisePromo = ({ compact = false }: { compact?: boolean }) => (
@@ -167,14 +186,14 @@ const AdRail = () => {
       aria-label="Sponsored"
       className="fixed right-0 top-16 bottom-0 hidden w-[220px] overflow-y-auto border-l border-border/60 px-4 py-5 min-[1500px]:block"
     >
-      <p className="mb-3 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-        Sponsored
-      </p>
+      <p className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">AD</p>
       <div className="space-y-3">
         {slots.map((slot) => (
           <SponsorCard key={slot.id} slot={slot} />
         ))}
-        <AdvertisePromo />
+        {Array.from({ length: Math.max(0, 5 - slots.length) }).map((_, i) => (
+          <AdPlaceholder key={`ad-placeholder-${i}`} />
+        ))}
       </div>
     </aside>
     </>
