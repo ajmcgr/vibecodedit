@@ -318,12 +318,13 @@ const AdRail = () => {
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/95 py-2 pt-[calc(0.5rem+env(safe-area-inset-top))] backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 py-2 pt-[calc(0.5rem+env(safe-area-inset-top))] backdrop-blur lg:hidden">
         <AdBanner />
       </div>
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-background/95 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
         <AdBanner reverse />
       </div>
+
     </>
   );
 };
