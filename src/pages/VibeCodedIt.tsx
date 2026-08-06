@@ -47,7 +47,7 @@ const buildFaqs = (appCount: string) => [
   },
   {
     q: 'How many apps are on the Builder Wall?',
-    a: `Over ${appCount} vibe coded apps have been added to the Builder Wall, and more are launched every day.`,
+    a: `${appCount} vibe coded apps have been added to the Builder Wall, and more are launched every day.`,
   },
   {
     q: 'What is Launch?',
@@ -101,8 +101,7 @@ const VibeCodedIt = () => {
 
   const { data: launchedCount } = useLaunchedProductCount();
   const rawCount = launchedCount || 0;
-  const roundedCount = rawCount >= 100 ? Math.floor(rawCount / 50) * 50 : rawCount;
-  const appCount = roundedCount.toLocaleString();
+  const appCount = rawCount.toLocaleString();
   const faqs = useMemo(() => buildFaqs(appCount), [appCount]);
 
   useEffect(() => {
@@ -265,7 +264,7 @@ const VibeCodedIt = () => {
                   </button>
                 ) : (
                   rawCount > 0 && (
-                    <>Over <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
+                    <><span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
                   )
                 )}
               </p>
