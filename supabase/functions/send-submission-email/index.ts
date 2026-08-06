@@ -9,7 +9,7 @@ const corsHeaders = {
 
 const SITE = 'https://vibecodedit.com';
 const LOGO = SITE + '/vibecodedit-logo.png';
-const FROM = 'Vibe Coded It <hello@trylaunch.ai>';
+const FROM = 'Alex at Vibe Coded It <alex@vibecodedit.com>';
 
 const esc = (v: unknown) =>
   String(v ?? '')
