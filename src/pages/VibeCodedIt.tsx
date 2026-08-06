@@ -24,6 +24,7 @@ import { BuilderWall } from '@/components/campaign/BuilderWall';
 import { ViewToggle } from '@/components/ViewToggle';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
+import { promptSubmitChoice } from '@/lib/submitPrompt';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   CAMPAIGN_SLUG,
@@ -128,10 +129,7 @@ const VibeCodedIt = () => {
 
 
   const handleAddYourApp = () => {
-    setCampaignIntent(CAMPAIGN_SLUG);
-    trackCampaignEvent('campaign_cta_clicked');
-    const url = `https://trylaunch.ai/submit?campaign=${CAMPAIGN_SLUG}&source=vibecodedit`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    promptSubmitChoice(() => navigate('/submit'));
   };
 
   const closeWelcome = () => {

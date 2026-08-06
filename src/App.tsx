@@ -14,6 +14,7 @@ import SideAdRails from "@/components/SideAdRails";
 // Everything account/payment/submission related lives on trylaunch.ai.
 const VibeCodedIt = lazy(() => import("./pages/VibeCodedIt"));
 const VibeCodedItCollections = lazy(() => import("./pages/VibeCodedItCollections"));
+const Submit = lazy(() => import("./pages/Submit"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -131,6 +132,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<VibeCodedIt />} />
             <Route path="/collections" element={<VibeCodedItCollections />} />
+            <Route path="/submit" element={<Submit />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

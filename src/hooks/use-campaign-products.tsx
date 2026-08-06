@@ -12,6 +12,10 @@ export interface BuilderWallProduct {
   category?: string;
   founder?: string;
   isCampaign: boolean;
+  /** Direct destination — set for Vibe Coded It submissions without a Launch listing. */
+  url?: string;
+  /** True for tiles created through vibecodedit.com/submit. */
+  isSubmission?: boolean;
 }
 
 const PRODUCT_SELECT = `
@@ -71,15 +75,43 @@ export const useCampaignProducts = (limit = 32) =>
         .order('launch_date', { ascending: false })
         .limit(PAGE);
 
-      const [categoriesRes, campaignRes, recentRes] = await Promise.all([
+      // Vibe Coded It tiles submitted directly on this site (public view only —
+      // founder emails are never exposed).
+      const submissionsQuery = (supabase as any)
+        .from('vibecodedit_submissions_public')
+        .select(
+          'id, app_name, website_url, description, category, founder_username, founder_name, screenshot_url, logo_url, launch_product_id, promoted_to_launch, created_at'
+        )
+        .order('created_at', { ascending: false })
+        .limit(PAGE);
+
+      const [categoriesRes, campaignRes, recentRes, submissionsRes] = await Promise.all([
         supabase.from('product_categories').select('id, name'),
         campaignQuery.then((r: any) => r).catch(() => ({ data: [], error: null })),
         recentQuery,
+        submissionsQuery.then((r: any) => r).catch(() => ({ data: [], error: null })),
       ]);
 
       const categoryMap = new Map<number, string>(
         ((categoriesRes.data as any[]) || []).map((c: any) => [c.id, c.name])
       );
+
+      const submissions: BuilderWallProduct[] = ((submissionsRes as any)?.error
+        ? []
+        : ((submissionsRes as any)?.data || [])
+      ).map((s: any) => ({
+        id: s.id,
+        name: s.app_name,
+        tagline: s.description,
+        slug: '',
+        iconUrl: s.logo_url || undefined,
+        screenshotUrl: s.screenshot_url || undefined,
+        category: s.category || undefined,
+        founder: s.founder_username || s.founder_name || undefined,
+        isCampaign: true,
+        isSubmission: true,
+        url: s.website_url,
+      }));
 
       const campaignProducts = mapRows(
         (campaignRes as any)?.error ? [] : ((campaignRes as any)?.data || []),
@@ -112,10 +144,31 @@ export const useCampaignProducts = (limit = 32) =>
         }
       }
 
+      // Promoted submissions link to their Launch product page instead of the site.
+      const promotedIds = ((submissionsRes as any)?.data || [])
+        .map((s: any) => s.launch_product_id)
+        .filter(Boolean);
+      if (promotedIds.length) {
+        const { data: promoted } = await (supabase as any)
+          .from('products')
+          .select('id, slug')
+          .in('id', promotedIds);
+        const slugById = new Map<string, string>(
+          ((promoted as any[]) || []).map((p: any) => [p.id, p.slug])
+        );
+        ((submissionsRes as any)?.data || []).forEach((s: any, i: number) => {
+          const slug = s.launch_product_id ? slugById.get(s.launch_product_id) : undefined;
+          if (slug) {
+            submissions[i].slug = slug;
+            submissions[i].url = undefined;
+          }
+        });
+      }
+
       const seen = new Set(campaignProducts.map((p) => p.id));
       const filler = mapRows(recentRows, categoryMap, false).filter((p) => !seen.has(p.id));
 
-      const all = [...campaignProducts, ...filler];
+      const all = [...submissions, ...campaignProducts, ...filler];
       return limit > 0 ? all.slice(0, limit) : all;
     },
     staleTime: 5 * 60 * 1000,
