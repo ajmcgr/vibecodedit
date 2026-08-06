@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, LayoutPanelLeft, DollarSign, Settings } from 'lucide-react';
+import { Home, Compass, DollarSign, Settings } from 'lucide-react';
 
 const itemBase =
   'flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground';
@@ -38,14 +38,6 @@ export const CampaignSideNav = () => {
           >
             <Compass className="h-5 w-5" />
           </Link>
-          <Link
-            to="/collections"
-            aria-label="Collections"
-            title="Collections"
-            className={`${itemBase} ${active('/collections')}`}
-          >
-            <LayoutPanelLeft className="h-5 w-5" />
-          </Link>
           <a
             href="https://trylaunch.ai/advertise"
             target="_blank"
@@ -82,14 +74,6 @@ export const CampaignSideNav = () => {
         <Link to="/" aria-label="Explore" className={`${mobileItem} ${activeMobile('/')}`}>
           <Compass className="h-5 w-5" />
           Explore
-        </Link>
-        <Link
-          to="/collections"
-          aria-label="Collections"
-          className={`${mobileItem} ${activeMobile('/collections')}`}
-        >
-          <LayoutPanelLeft className="h-5 w-5" />
-          Collections
         </Link>
         <a
           href="https://trylaunch.ai/advertise"

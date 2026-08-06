@@ -8,7 +8,6 @@ import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import SideAdRails from "@/components/SideAdRails";
 
 // Standalone Vibe Coded It frontend: the homepage is the campaign page.
 // Everything account/payment/submission related lives on trylaunch.ai.
@@ -37,7 +36,6 @@ const AppContent = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <SideAdRails isCampaignPage={isCampaignPage} />
       <main className="flex-1">
 
         <Suspense fallback={
