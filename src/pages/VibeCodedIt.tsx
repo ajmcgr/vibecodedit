@@ -47,7 +47,7 @@ const buildFaqs = (appCount: string) => [
   },
   {
     q: 'How many apps are on the Builder Wall?',
-    a: `Over ${appCount} vibe coded apps have been added to the Builder Wall, and more are launched every day.`,
+    a: `${appCount} vibe coded apps have been added to the Builder Wall, and more are launched every day.`,
   },
   {
     q: 'What is Launch?',
