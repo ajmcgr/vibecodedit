@@ -210,6 +210,9 @@ const VibeCodedIt = () => {
       {/* Campaign header */}
       <CampaignHeader />
       <CampaignSideNav />
+      <div className="px-4 pt-3 lg:pl-20">
+        <AdBanner />
+      </div>
 
       {/* Hero */}
       {showHero && !user && !searchTerm && (
