@@ -101,8 +101,7 @@ const VibeCodedIt = () => {
 
   const { data: launchedCount } = useLaunchedProductCount();
   const rawCount = launchedCount || 0;
-  const roundedCount = rawCount >= 100 ? Math.floor(rawCount / 50) * 50 : rawCount;
-  const appCount = roundedCount.toLocaleString();
+  const appCount = rawCount.toLocaleString();
   const faqs = useMemo(() => buildFaqs(appCount), [appCount]);
 
   useEffect(() => {
