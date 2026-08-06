@@ -116,7 +116,7 @@ const Submit = () => {
       <CampaignHeader />
       <CampaignSideNav />
 
-      <main className="lg:pl-20 min-[1700px]:pr-[200px]">
+      <main className="lg:pl-20">
         <div className="mx-auto w-full max-w-2xl px-4 pt-8 pb-24">
           {done ? (
             <div className="rounded-xl border bg-card p-8 text-center">

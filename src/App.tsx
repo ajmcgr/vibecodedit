@@ -55,7 +55,7 @@ const AppContent = () => {
                   <div key={i} className="h-10 w-10 rounded-xl bg-muted/50 animate-pulse" />
                 ))}
               </div>
-              <div className="lg:pl-20 min-[1700px]:pr-[200px]">
+              <div className="lg:pl-20">
                 <div className="w-full px-4 pt-4 pb-8">
                   <div className="h-8 w-48 rounded-md bg-muted/60 animate-pulse" />
                   <div className="mt-3 h-4 w-80 max-w-full rounded bg-muted/50 animate-pulse" />

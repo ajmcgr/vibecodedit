@@ -203,7 +203,7 @@ const VibeCodedIt = () => {
 
       {/* Hero */}
       {showHero && !user && (
-        <section className="relative pt-8 sm:pt-10 lg:pl-20 min-[1700px]:pr-[200px]">
+        <section className="relative pt-8 sm:pt-10 lg:pl-20">
           <div className="w-full px-4">
             <div className="relative w-full px-6 py-8 sm:py-10 text-center bg-[#fcfcfc] dark:bg-card dark:border dark:border-border rounded-2xl">
             <h1 className="mx-auto max-w-xl text-5xl sm:text-6xl font-semibold tracking-tight text-foreground">
@@ -237,7 +237,7 @@ const VibeCodedIt = () => {
 
 
       {/* Apps title + app count + view toggle */}
-      <section className="lg:pl-20 min-[1700px]:pr-[200px]">
+      <section className="lg:pl-20">
         <div className="w-full px-4 pt-4">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -259,7 +259,7 @@ const VibeCodedIt = () => {
 
 
       {/* Builder Wall */}
-      <section className="lg:pl-20 min-[1700px]:pr-[200px]">
+      <section className="lg:pl-20">
         <div className="w-full px-4 pb-8 pt-4 sm:pb-8 sm:pt-6">
           <BuilderWall view={wallView} />
         </div>

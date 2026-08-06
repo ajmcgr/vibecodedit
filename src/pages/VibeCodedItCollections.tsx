@@ -34,7 +34,7 @@ const VibeCodedItCollections = () => {
       <CampaignHeader />
       <CampaignSideNav />
 
-      <main className="lg:pl-20 min-[1700px]:pr-[200px]">
+      <main className="lg:pl-20">
         <div className="w-full px-4 pt-4 pb-8">
           <h1 className="text-2xl font-bold tracking-tight">Collections</h1>
           <p className="mt-2 text-sm text-muted-foreground leading-5">
