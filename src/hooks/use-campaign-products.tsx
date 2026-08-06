@@ -144,10 +144,31 @@ export const useCampaignProducts = (limit = 32) =>
         }
       }
 
+      // Promoted submissions link to their Launch product page instead of the site.
+      const promotedIds = ((submissionsRes as any)?.data || [])
+        .map((s: any) => s.launch_product_id)
+        .filter(Boolean);
+      if (promotedIds.length) {
+        const { data: promoted } = await (supabase as any)
+          .from('products')
+          .select('id, slug')
+          .in('id', promotedIds);
+        const slugById = new Map<string, string>(
+          ((promoted as any[]) || []).map((p: any) => [p.id, p.slug])
+        );
+        ((submissionsRes as any)?.data || []).forEach((s: any, i: number) => {
+          const slug = s.launch_product_id ? slugById.get(s.launch_product_id) : undefined;
+          if (slug) {
+            submissions[i].slug = slug;
+            submissions[i].url = undefined;
+          }
+        });
+      }
+
       const seen = new Set(campaignProducts.map((p) => p.id));
       const filler = mapRows(recentRows, categoryMap, false).filter((p) => !seen.has(p.id));
 
-      const all = [...campaignProducts, ...filler];
+      const all = [...submissions, ...campaignProducts, ...filler];
       return limit > 0 ? all.slice(0, limit) : all;
     },
     staleTime: 5 * 60 * 1000,
