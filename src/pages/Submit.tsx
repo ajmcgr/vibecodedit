@@ -18,6 +18,7 @@ import {
   createSubmission,
   findDuplicate,
   launchSubmitUrl,
+  sendSubmissionEmail,
   validateSubmission,
   type FieldErrors,
   type SubmissionInput,
@@ -89,6 +90,7 @@ const Submit = () => {
         return;
       }
       await createSubmission(form, { screenshot: screenshot as File, logo });
+      void sendSubmissionEmail(form);
       trackCampaignEvent('campaign_submission_completed');
       setDone(form);
       window.scrollTo(0, 0);

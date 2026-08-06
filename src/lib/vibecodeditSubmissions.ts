@@ -212,3 +212,21 @@ export const launchSubmitUrl = (input?: Partial<SubmissionInput>) => {
   if (input?.category) params.set('category', input.category);
   return `https://trylaunch.ai/submit?${params.toString()}`;
 };
+
+/** Fire-and-forget confirmation email for a new submission. */
+export const sendSubmissionEmail = async (input: SubmissionInput) => {
+  try {
+    await supabase.functions.invoke('send-submission-email', {
+      body: {
+        founder_email: input.founder_email.trim().toLowerCase(),
+        founder_name: input.founder_name.trim(),
+        app_name: input.app_name.trim(),
+        website_url: input.website_url.trim(),
+        description: input.description.trim(),
+        category: input.category.trim(),
+      },
+    });
+  } catch (err) {
+    console.error('Confirmation email failed', err);
+  }
+};

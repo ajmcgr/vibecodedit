@@ -2,3 +2,6 @@ project_id = "gzpypxgdkxdynovploxn"
 
 [functions.subscribe-to-newsletter]
 verify_jwt = false
+
+[functions.send-submission-email]
+verify_jwt = false
