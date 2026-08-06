@@ -100,7 +100,6 @@ export const CampaignSideNav = () => {
           Support
         </a>
         <a
-
           href="https://trylaunch.ai/auth"
           target="_blank"
           rel="noopener noreferrer"
