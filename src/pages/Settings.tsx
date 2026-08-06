@@ -1,0 +1,668 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { StripeConnectCard } from '@/components/StripeConnectCard';
+import { PassStatus } from '@/components/PassStatus';
+import { usePass } from '@/hooks/use-pass';
+import { useQueryClient } from '@tanstack/react-query';
+import { gradientFor } from '@/lib/gradients';
+
+const Settings = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState({
+    name: '',
+    username: '',
+    bio: '',
+    twitter: '',
+    instagram: '',
+    linkedin: '',
+    youtube: '',
+    telegram: '',
+    website: '',
+    avatar_url: '',
+    banner_image_url: '',
+    stripe_customer_id: '',
+    email_notifications_enabled: true,
+    notify_on_follow: true,
+    notify_on_comment: true,
+    notify_on_vote: true,
+    notify_on_launch: true,
+  });
+  const [uploading, setUploading] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  
+  // Pass status
+  const { data: passStatus, refetch: refetchPassStatus } = usePass(user?.id);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate('/auth');
+      } else {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+        
+        // Show success toast and refetch pass status for annual pass purchase
+        if (searchParams.get('success') === 'annual') {
+          toast.success('Launch Pass Annual Access activated! You now have unlimited access for 12 months.');
+          queryClient.invalidateQueries({ queryKey: ['pass', session.user.id] });
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, searchParams]);
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (data) {
+      setProfile({ banner_image_url: '', ...(data as any) });
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Store old username to check if it changed
+      const oldUsername = (await supabase
+        .from('users')
+        .select('username')
+        .eq('id', user.id)
+        .single()).data?.username;
+
+      // Only send editable fields to avoid sending read-only columns
+      const updateData = {
+        name: profile.name,
+        username: profile.username,
+        bio: profile.bio,
+        twitter: profile.twitter,
+        instagram: profile.instagram,
+        linkedin: profile.linkedin,
+        youtube: profile.youtube,
+        telegram: profile.telegram,
+        website: profile.website,
+        avatar_url: profile.avatar_url,
+        banner_image_url: profile.banner_image_url,
+        email_notifications_enabled: profile.email_notifications_enabled,
+        notify_on_follow: profile.notify_on_follow,
+        notify_on_comment: profile.notify_on_comment,
+        notify_on_vote: profile.notify_on_vote,
+        notify_on_launch: profile.notify_on_launch,
+      };
+
+      const { error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', user.id);
+
+      if (error) throw error;
+      toast.success('Profile updated successfully');
+
+      // If username changed, redirect to new profile URL
+      if (oldUsername && oldUsername !== profile.username) {
+        setTimeout(() => {
+          navigate(`/@${profile.username}`);
+        }, 1000);
+      }
+    } catch (error: any) {
+      console.error('Update error:', error);
+      toast.error(error.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file size (max 5MB)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      toast.error('Image must be under 5MB. Please choose a smaller file.');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      // Use a fixed filename so upsert actually overwrites
+      const fileName = `${user.id}/avatar.${fileExt}`;
+
+      // Try to remove old avatar (non-blocking)
+      try {
+        if (profile.avatar_url?.includes('/avatars/')) {
+          const oldPath = profile.avatar_url.split('/avatars/')[1];
+          if (oldPath) {
+            await supabase.storage.from('avatars').remove([decodeURIComponent(oldPath)]);
+          }
+        }
+      } catch (removeErr) {
+        console.warn('Could not remove old avatar:', removeErr);
+      }
+
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '0',
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Append cache-busting param to force refresh
+      const freshUrl = `${publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ avatar_url: freshUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile({ ...profile, avatar_url: freshUrl });
+      toast.success('Avatar updated successfully');
+    } catch (error: any) {
+      console.error('Upload error details:', error);
+      const msg = error?.message || error?.statusCode || 'Failed to upload avatar';
+      if (msg === 'Failed to fetch') {
+        toast.error('Network error. Please check your connection and try again.');
+      } else {
+        toast.error(String(msg));
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be under 5MB.'); return; }
+    if (!file.type.startsWith('image/')) { toast.error('Please select an image file.'); return; }
+    setUploadingBanner(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${user.id}/banner-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('user-banners')
+        .upload(path, file, { cacheControl: '3600', upsert: true });
+      if (upErr) throw upErr;
+      const { data: { publicUrl } } = supabase.storage.from('user-banners').getPublicUrl(path);
+      const { error: updErr } = await supabase
+        .from('users')
+        .update({ banner_image_url: publicUrl } as any)
+        .eq('id', user.id);
+      if (updErr) throw updErr;
+      setProfile({ ...profile, banner_image_url: publicUrl });
+      toast.success('Banner updated');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to upload banner');
+    } finally {
+      setUploadingBanner(false);
+    }
+  };
+
+  const handleRemoveBanner = async () => {
+    if (!user) return;
+    setUploadingBanner(true);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ banner_image_url: null } as any)
+        .eq('id', user.id);
+      if (error) throw error;
+      setProfile({ ...profile, banner_image_url: '' });
+      toast.success('Banner removed');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to remove banner');
+    } finally {
+      setUploadingBanner(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    try {
+      setLoading(true);
+      
+      // Check if user has a Stripe customer ID
+      if (!profile.stripe_customer_id) {
+        toast.error('No billing information found. Please make a purchase first.');
+        return;
+      }
+
+      // Call edge function to create portal session
+      const { data, error } = await supabase.functions.invoke('create-portal-session', {
+        body: {
+          customerId: profile.stripe_customer_id,
+          returnUrl: `${window.location.origin}/settings`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error('Billing error:', error);
+      toast.error('Unable to access billing portal');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    toast.info('Account deletion will be implemented');
+    // In production: Soft delete user and send confirmation email
+  };
+
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen bg-background py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <h1 className="text-4xl font-bold mb-8">Settings</h1>
+
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="products">Integrations</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="account">Account</TabsTrigger>
+            <TabsTrigger value="billing">Billing</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile">
+            <Card>
+              <CardHeader>
+                <CardTitle>Public Profile</CardTitle>
+                <CardDescription>
+                  This information will be displayed publicly on your profile
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateProfile} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="avatar">Avatar</Label>
+                    <div className="flex items-center gap-4">
+                      {profile.avatar_url && (
+                        <img
+                          src={profile.avatar_url}
+                          alt="Avatar"
+                          className="w-20 h-20 rounded-full object-cover"
+                        />
+                      )}
+                      <Input
+                        id="avatar"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        disabled={uploading}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="banner">Profile banner</Label>
+                    <p className="text-xs text-muted-foreground">Replaces the gradient hero on your profile. Recommended 1500×400 (max 5MB).</p>
+                    <div
+                      className="w-full h-32 rounded-lg overflow-hidden bg-muted border"
+                      style={!profile.banner_image_url ? { backgroundImage: gradientFor(user?.id || profile.username || 'x') } : undefined}
+                    >
+                      {profile.banner_image_url && (
+                        <img src={profile.banner_image_url} alt="Banner preview" className="w-full h-full object-cover" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="banner"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleBannerUpload}
+                        disabled={uploadingBanner}
+                      />
+                      {profile.banner_image_url && (
+                        <Button type="button" variant="outline" size="sm" onClick={handleRemoveBanner} disabled={uploadingBanner}>
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      value={profile.username || ''}
+                      onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      value={profile.name || ''}
+                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                      placeholder="Your full name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                      id="bio"
+                      value={profile.bio || ''}
+                      onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                      rows={4}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="twitter">X Username</Label>
+                    <Input
+                      id="twitter"
+                      value={profile.twitter || ''}
+                      onChange={(e) => setProfile({ ...profile, twitter: e.target.value })}
+                      placeholder="@username"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram">Instagram Username</Label>
+                    <Input
+                      id="instagram"
+                      value={profile.instagram || ''}
+                      onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
+                      placeholder="@username"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedin">LinkedIn Username</Label>
+                    <Input
+                      id="linkedin"
+                      value={profile.linkedin || ''}
+                      onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
+                      placeholder="username"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="youtube">YouTube Channel</Label>
+                    <Input
+                      id="youtube"
+                      value={profile.youtube || ''}
+                      onChange={(e) => setProfile({ ...profile, youtube: e.target.value })}
+                      placeholder="@channel"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telegram">Telegram Username</Label>
+                    <Input
+                      id="telegram"
+                      value={profile.telegram || ''}
+                      onChange={(e) => setProfile({ ...profile, telegram: e.target.value })}
+                      placeholder="@username"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Website</Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      value={profile.website || ''}
+                      onChange={(e) => setProfile({ ...profile, website: e.target.value })}
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <Card>
+              <CardHeader>
+                <CardTitle>Email Notifications</CardTitle>
+                <CardDescription>
+                  Choose what you want to be notified about via email
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="email-enabled">Email Notifications</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Enable or disable all email notifications
+                    </p>
+                  </div>
+                  <Switch
+                    id="email-enabled"
+                    checked={profile.email_notifications_enabled}
+                    onCheckedChange={(checked) => {
+                      setProfile({ ...profile, email_notifications_enabled: checked });
+                      handleUpdateProfile(new Event('submit') as any);
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notify-follow">New Followers</Label>
+                      <p className="text-sm text-muted-foreground">
+                        When someone follows you or your product
+                      </p>
+                    </div>
+                    <Switch
+                      id="notify-follow"
+                      checked={profile.notify_on_follow}
+                      disabled={!profile.email_notifications_enabled}
+                      onCheckedChange={(checked) => {
+                        setProfile({ ...profile, notify_on_follow: checked });
+                        handleUpdateProfile(new Event('submit') as any);
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notify-comment">Comments</Label>
+                      <p className="text-sm text-muted-foreground">
+                        When someone comments on your product
+                      </p>
+                    </div>
+                    <Switch
+                      id="notify-comment"
+                      checked={profile.notify_on_comment}
+                      disabled={!profile.email_notifications_enabled}
+                      onCheckedChange={(checked) => {
+                        setProfile({ ...profile, notify_on_comment: checked });
+                        handleUpdateProfile(new Event('submit') as any);
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notify-vote">Votes</Label>
+                      <p className="text-sm text-muted-foreground">
+                        When someone upvotes your product
+                      </p>
+                    </div>
+                    <Switch
+                      id="notify-vote"
+                      checked={profile.notify_on_vote}
+                      disabled={!profile.email_notifications_enabled}
+                      onCheckedChange={(checked) => {
+                        setProfile({ ...profile, notify_on_vote: checked });
+                        handleUpdateProfile(new Event('submit') as any);
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notify-launch">Product Launches</Label>
+                      <p className="text-sm text-muted-foreground">
+                        When products you follow are launched
+                      </p>
+                    </div>
+                    <Switch
+                      id="notify-launch"
+                      checked={profile.notify_on_launch}
+                      disabled={!profile.email_notifications_enabled}
+                      onCheckedChange={(checked) => {
+                        setProfile({ ...profile, notify_on_launch: checked });
+                        handleUpdateProfile(new Event('submit') as any);
+                      }}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="account">
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Settings</CardTitle>
+                <CardDescription>
+                  Manage your account security and preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input value={user.email} disabled />
+                  <p className="text-sm text-muted-foreground">
+                    Your email address is managed by your authentication provider
+                  </p>
+                </div>
+
+                <div className="pt-6 border-t">
+                  <h3 className="text-lg font-semibold mb-4 text-destructive">Danger Zone</h3>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">Delete Account</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your
+                          account and remove your data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteAccount}>
+                          Delete Account
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="products">
+            <StripeConnectCard userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="billing" className="space-y-6">
+            {/* Pass Status */}
+            <PassStatus 
+              hasActivePass={passStatus?.hasActivePass || false}
+              expiresAt={passStatus?.expiresAt || null}
+              cancelAtPeriodEnd={passStatus?.cancelAtPeriodEnd || false}
+              subscriptionStatus={passStatus?.subscriptionStatus}
+              onStatusChange={() => {
+                // Refetch user data and pass status
+                if (user?.id) {
+                  fetchProfile(user.id);
+                  refetchPassStatus();
+                }
+              }}
+            />
+            
+            {/* Stripe Billing Portal - only show if user has billing history */}
+            {profile.stripe_customer_id ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment History</CardTitle>
+                  <CardDescription>
+                    Manage your payment methods and view billing history
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    View and manage your billing information through Stripe
+                  </p>
+                  <Button onClick={handleManageBilling} disabled={loading}>
+                    {loading ? 'Loading...' : 'Manage Billing'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upgrade Your Account</CardTitle>
+                  <CardDescription>
+                    Choose a plan to unlock more features
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Get more visibility for your products with our paid plans, or subscribe to Launch Pass for unlimited launches.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Button asChild variant="default">
+                      <Link to="/pass">Get Launch Pass</Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link to="/pricing">View All Plans</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;

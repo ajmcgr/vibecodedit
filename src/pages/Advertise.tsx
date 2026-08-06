@@ -1,0 +1,1349 @@
+import { useState, useMemo, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Check, ArrowLeft, X, Eye, Mail, CheckCircle, HelpCircle, Lock, CalendarIcon, Upload, Loader2, Zap } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { format, startOfMonth, addMonths, setMonth, setYear } from 'date-fns';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+import yogeshAvatar from '@/assets/yogesh-avatar.jpg';
+import jakeAvatar from '@/assets/jake-avatar.jpg';
+import PopularProductIcons from '@/components/PopularProductIcons';
+import AdPerformanceStats from '@/components/AdPerformanceStats';
+
+interface LaunchedProduct {
+  id: string;
+  name: string;
+  slug: string;
+  tagline: string | null;
+  iconUrl: string | null;
+}
+
+import defaultProductIcon from '@/assets/default-product-icon.png';
+import stripeLogo from '@/assets/stripe-logo.png';
+
+type SponsorshipType = 'website' | 'newsletter' | 'combined';
+
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+const MonthYearPicker = ({ onSelect }: { onSelect: (date: Date) => void }) => {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  
+  const years = Array.from({ length: 3 }, (_, i) => currentYear + i);
+  
+  const handleMonthClick = (monthIndex: number) => {
+    const date = setMonth(setYear(new Date(), selectedYear), monthIndex);
+    onSelect(date);
+  };
+  
+  const isDisabled = (monthIndex: number) => {
+    if (selectedYear === currentYear && monthIndex < currentMonth) {
+      return true;
+    }
+    return false;
+  };
+  
+  return (
+    <div className="space-y-4">
+      <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
+        <SelectTrigger className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="bg-background">
+          {years.map((year) => (
+            <SelectItem key={year} value={year.toString()}>
+              {year}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <div className="grid grid-cols-3 gap-2">
+        {MONTHS.map((month, index) => (
+          <Button
+            key={month}
+            variant="outline"
+            size="sm"
+            disabled={isDisabled(index)}
+            onClick={() => handleMonthClick(index)}
+            className="text-xs"
+          >
+            {month.slice(0, 3)}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Advertise = () => {
+  const navigate = useNavigate();
+  const [step, setStep] = useState<1 | 2>(1);
+  const [selectedType, setSelectedType] = useState<SponsorshipType | null>(null);
+  const [selectedMonths, setSelectedMonths] = useState<Date[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [adType, setAdType] = useState<'product' | 'custom'>('product');
+  const [customAd, setCustomAd] = useState({
+    image_url: '',
+    title: '',
+    description: '',
+    target_url: '',
+  });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [formData, setFormData] = useState({
+    message: '',
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [launchedProducts, setLaunchedProducts] = useState<LaunchedProduct[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  // Check authentication state
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setAuthChecked(true);
+    };
+    
+    checkAuth();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Fetch user's launched products
+  useEffect(() => {
+    const fetchLaunchedProducts = async () => {
+      if (!user) {
+        setLaunchedProducts([]);
+        setIsLoadingProducts(false);
+        return;
+      }
+
+      setIsLoadingProducts(true);
+
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          id, 
+          name, 
+          slug, 
+          tagline,
+          product_media!inner(url, type)
+        `)
+        .eq('owner_id', user.id)
+        .in('status', ['launched', 'scheduled'])
+        .eq('product_media.type', 'icon')
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching launched products:', error);
+        // Fallback query without icon filter
+        const { data: fallbackData } = await supabase
+          .from('products')
+          .select('id, name, slug, tagline')
+          .eq('owner_id', user.id)
+          .in('status', ['launched', 'scheduled'])
+          .order('name');
+        
+        setLaunchedProducts((fallbackData || []).map(p => ({ ...p, iconUrl: null })));
+      } else {
+        const productsWithIcons = (data || []).map(p => ({
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          tagline: p.tagline,
+          iconUrl: Array.isArray(p.product_media) && p.product_media.length > 0 
+            ? p.product_media[0].url 
+            : null
+        }));
+        setLaunchedProducts(productsWithIcons);
+      }
+      setIsLoadingProducts(false);
+    };
+
+    if (authChecked) {
+      fetchLaunchedProducts();
+    }
+  }, [user, authChecked]);
+
+  // Handle calendar month selection
+  const handleMonthSelect = (date: Date | undefined) => {
+    if (!date) return;
+    
+    const monthStart = startOfMonth(date);
+    const today = startOfMonth(new Date());
+    
+    // Don't allow past months
+    if (monthStart < today) {
+      toast.error('Cannot select past months');
+      return;
+    }
+    
+    // Check if already selected
+    if (selectedMonths.some(m => m.getTime() === monthStart.getTime())) {
+      toast.error('This month is already selected');
+      return;
+    }
+    
+    setSelectedMonths(prev => [...prev, monthStart].sort((a, b) => a.getTime() - b.getTime()));
+    setCalendarOpen(false);
+  };
+
+  const removeMonth = (month: Date) => {
+    setSelectedMonths(prev => prev.filter(m => m.getTime() !== month.getTime()));
+  };
+
+  const getPrice = () => {
+    switch (selectedType) {
+      case 'website': return 99;
+      case 'newsletter': return 149;
+      case 'combined': return 199;
+      default: return 0;
+    }
+  };
+
+  const calculateTotal = () => {
+    return getPrice() * selectedMonths.length;
+  };
+
+  const handleGetStarted = (type: SponsorshipType) => {
+    if (!user) {
+      toast.error('Please sign in to purchase advertising');
+      navigate('/auth?redirect=/advertise');
+      return;
+    }
+    setSelectedType(type);
+    setStep(2);
+  };
+
+  const isValidHttpsUrl = (url: string) => {
+    try {
+      const u = new URL(url);
+      return u.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (selectedMonths.length === 0) {
+      errors.months = 'Please select at least one month';
+    }
+
+    if (adType === 'product') {
+      if (!selectedProductId) {
+        errors.product = 'Please select a product';
+      }
+    } else {
+      if (!customAd.image_url) errors.custom_image = 'Please upload a creative image';
+      if (!customAd.title.trim()) errors.custom_title = 'Title is required';
+      if (customAd.title.length > 80) errors.custom_title = 'Title must be 80 characters or fewer';
+      if (customAd.description.length > 180) errors.custom_description = 'Description must be 180 characters or fewer';
+      if (!customAd.target_url.trim()) errors.custom_target_url = 'Destination URL is required';
+      else if (!isValidHttpsUrl(customAd.target_url)) errors.custom_target_url = 'Must be a valid https:// URL';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const getSelectedProduct = () => launchedProducts.find(p => p.id === selectedProductId);
+
+  const handleBack = () => {
+    setStep(1);
+  };
+
+  const handleCustomImageUpload = async (file: File) => {
+    if (!user) {
+      toast.error('Please sign in to upload images');
+      return;
+    }
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      toast.error('Image must be JPG, PNG, or WEBP');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be 5MB or smaller');
+      return;
+    }
+    // Min dimension check
+    const dims = await new Promise<{ w: number; h: number } | null>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => resolve(null);
+      img.src = URL.createObjectURL(file);
+    });
+    if (!dims || dims.w < 600 || dims.h < 315) {
+      toast.error('Image must be at least 600×315px');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('ad-creatives')
+        .upload(path, file, { upsert: false, cacheControl: '3600', contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('ad-creatives').getPublicUrl(path);
+      setCustomAd((prev) => ({ ...prev, image_url: pub.publicUrl }));
+      setFormErrors((prev) => ({ ...prev, custom_image: '' }));
+      toast.success('Image uploaded');
+    } catch (err: any) {
+      console.error('Upload failed:', err);
+      toast.error(err?.message || 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedType) {
+      toast.error('Please select a sponsorship option');
+      return;
+    }
+
+    if (!validateForm()) {
+      toast.error('Please fix the errors below');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const selectedProduct = getSelectedProduct();
+      const launchUrl =
+        adType === 'product' && selectedProduct
+          ? `https://trylaunch.ai/launch/${selectedProduct.slug}`
+          : '';
+
+      const { data, error } = await supabase.functions.invoke('create-advertising-checkout', {
+        body: {
+          adType,
+          launchUrl,
+          productId: adType === 'product' ? selectedProductId : '',
+          customAd: adType === 'custom' ? customAd : null,
+          sponsorshipType: selectedType,
+          months: selectedMonths.length.toString(),
+          selectedMonths: selectedMonths.map(m => format(m, 'MMMM yyyy')),
+          message: formData.message,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Track creation event
+        try {
+          await supabase.from('product_analytics').insert({
+            event_type: 'ad_created',
+            metadata: { ad_type: adType, sponsorship_type: selectedType },
+          } as any);
+        } catch {}
+        window.location.href = data.url;
+      } else {
+        throw new Error(data?.error || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create checkout. Please try again.');
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle success/cancel from Stripe redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      setShowSuccessModal(true);
+      // Clear URL params
+      window.history.replaceState({}, '', '/advertise');
+    } else if (urlParams.get('canceled') === 'true') {
+      toast.info('Payment was canceled.');
+      window.history.replaceState({}, '', '/advertise');
+    }
+  }, []);
+
+
+  // Success Modal Component
+  const SuccessModal = () => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <Card className="max-w-md w-full">
+        <CardContent className="pt-6 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="h-10 w-10 text-green-600" />
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
+          <p className="text-muted-foreground mb-4">
+            Your sponsorship has been activated. You'll receive a confirmation email shortly with all the details.
+          </p>
+          <div className="bg-muted/50 rounded-lg p-4 mb-6 text-left">
+            <h3 className="font-semibold mb-2">What happens next?</h3>
+            <ul className="text-sm space-y-2 text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>Your product will appear in the sponsored section during your selected months</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>Newsletter sponsors will be featured in our weekly emails</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>Check your email for the payment receipt</span>
+              </li>
+            </ul>
+          </div>
+          <Button onClick={() => setShowSuccessModal(false)} className="w-full">
+            Got it!
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // Stripe Badge Component
+  const StripeBadge = () => (
+    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-4">
+      <Lock className="h-4 w-4" />
+      <span>Payments secured by</span>
+      <img src={stripeLogo} alt="Stripe" className="h-6" />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background py-16 overflow-x-hidden">
+      {showSuccessModal && <SuccessModal />}
+      
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Get in Front of Vibe Coders</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Reach thousands of builders and founders shipping their own thing.
+          </p>
+        </div>
+
+        {step === 1 && (
+          <>
+            {/* Sponsorship Options */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-6">
+              <Card 
+                className={`hover:shadow-lg transition-shadow cursor-pointer flex flex-col ${
+                  selectedType === 'website' ? 'border-primary shadow-md ring-2 ring-primary' : ''
+                }`}
+                onClick={() => setSelectedType('website')}
+              >
+                <CardHeader>
+                <CardTitle className="text-xl">Website Ad</CardTitle>
+                <CardDescription>Sponsored listing on homepage + product pages</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 flex flex-col flex-1">
+                  <div className="text-4xl font-bold">
+                    $99<span className="text-base font-normal text-muted-foreground"> / month</span>
+                  </div>
+                <ul className="space-y-3 flex-1">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Runs for a full calendar month (pick any month)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Sponsored listing in the homepage feed</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Sidebar ad on homepage & product detail pages</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Inline ad above comments on product pages</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Visible to thousands of founders & builders</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Clearly labelled. No impact on rankings.</span>
+                  </li>
+                </ul>
+                <div className="pt-2 pb-1 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    <Eye className="h-3 w-3 inline mr-1 -mt-0.5" />
+                    ~30,000–150,000 monthly impressions
+                  </p>
+                </div>
+                <Button 
+                  className="w-full" 
+                  size="lg" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGetStarted('website');
+                  }}
+                >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className={`hover:shadow-lg transition-shadow cursor-pointer flex flex-col ${
+                  selectedType === 'newsletter' ? 'border-primary shadow-md ring-2 ring-primary' : ''
+                }`}
+                onClick={() => setSelectedType('newsletter')}
+              >
+                <CardHeader>
+                  <CardTitle className="text-xl">Newsletter Sponsorship</CardTitle>
+                  <CardDescription>Featured sponsor in our weekly newsletter</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 flex flex-col flex-1">
+                  <div className="text-4xl font-bold">
+                    $149<span className="text-base font-normal text-muted-foreground"> / issue</span>
+                  </div>
+                <ul className="space-y-3 flex-1">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Featured sponsor section in one weekly newsletter</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Sent to ~2,000 founders, makers & early-stage teams</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">25% email open rate</span>
+                  </li>
+                </ul>
+                <div className="pt-2 pb-1 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    <Eye className="h-3 w-3 inline mr-1 -mt-0.5" />
+                    Several thousand targeted readers
+                  </p>
+                </div>
+                <Button 
+                  className="w-full" 
+                  size="lg" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGetStarted('newsletter');
+                  }}
+                >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className={`relative hover:shadow-lg transition-shadow cursor-pointer border-primary shadow-md flex flex-col ${
+                  selectedType === 'combined' ? 'ring-2 ring-primary' : ''
+                }`}
+                onClick={() => setSelectedType('combined')}
+              >
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  Best Value
+                </Badge>
+                <CardHeader>
+                  <CardTitle className="text-xl">Combined Package</CardTitle>
+                  <CardDescription>Website + Newsletter bundle</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 flex flex-col flex-1">
+                  <div className="text-4xl font-bold">
+                    $199<span className="text-base font-normal text-muted-foreground"> / month</span>
+                  </div>
+                  <ul className="space-y-3 flex-1">
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Full month of website placement + one newsletter issue</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Homepage feed + sidebar sponsorship</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Sidebar ad on product detail pages</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Inline ad above comments on product pages</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">1 newsletter sponsorship (one issue)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Limited availability</span>
+                    </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Save $49 vs. buying separately</span>
+                  </li>
+                </ul>
+                <div className="pt-2 pb-1 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    <Eye className="h-3 w-3 inline mr-1 -mt-0.5" />
+                    ~30,000–150,000 impressions + newsletter readers
+                  </p>
+                </div>
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGetStarted('combined');
+                  }}
+                >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Custom Package Card - Below */}
+            <div className="max-w-md mx-auto mb-12">
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-xl">Custom Package</CardTitle>
+                  <CardDescription>Tailored campaigns for your brand</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Fully managed campaigns</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Display or multi-channel campaigns</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Newsletters, events, or other promoted content</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">Customized to meet your campaign goals</span>
+                    </li>
+                  </ul>
+                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    variant="outline"
+                    onClick={() => navigate('/media-kit')}
+                  >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center max-w-2xl mx-auto mb-12">
+              Estimated impressions based on recent platform traffic and growth trends. Actual performance may vary.
+            </p>
+
+            {/* Testimonials */}
+            <div className="max-w-3xl mx-auto mb-8">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold mb-2">Trusted by Advertisers</h3>
+                <p className="text-muted-foreground">See what other founders are saying about advertising on Launch</p>
+              </div>
+              <div className="space-y-8">
+                {/* Jake's Testimonial */}
+                <blockquote className="text-center">
+                  <p className="text-sm md:text-base leading-relaxed text-foreground/90 mb-4">
+                    "AdGenerator got great visibility from launching here. The engaged audience helped us get our first paying customers fast."
+                  </p>
+                  <footer className="flex items-center justify-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={jakeAvatar} alt="Jake" />
+                      <AvatarFallback>JH</AvatarFallback>
+                    </Avatar>
+                    <div className="text-sm text-left">
+                      <div className="font-medium">Jake</div>
+                      <div className="text-muted-foreground">
+                        AdGenerator · <a 
+                          href="https://x.com/jakeh2792" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >@jakeh2792</a>
+                      </div>
+                    </div>
+                  </footer>
+                </blockquote>
+
+                {/* Yogesh's Testimonial */}
+                <blockquote className="text-center">
+                  <p className="text-sm md:text-base leading-relaxed text-foreground/90 mb-4">
+                    "Launched Supalytics on Launch and got instant traffic. The community here actually engages with products — not just scrolls past. Best decision for getting early users."
+                  </p>
+                  <footer className="flex items-center justify-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={yogeshAvatar} alt="Yogesh" />
+                      <AvatarFallback>YA</AvatarFallback>
+                    </Avatar>
+                    <div className="text-sm text-left">
+                      <div className="font-medium">Yogesh</div>
+                      <div className="text-muted-foreground">
+                        Supalytics · <a 
+                          href="https://x.com/yogesharc" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >@yogesharc</a>
+                      </div>
+                    </div>
+                  </footer>
+                </blockquote>
+              </div>
+            </div>
+
+            {/* Popular Product Icons */}
+            <div className="my-16">
+              <PopularProductIcons />
+            </div>
+
+            {/* Ad Performance Stats */}
+            <div className="max-w-4xl mx-auto mb-12">
+              <h2 className="text-2xl font-bold text-center mb-8">Proven Results for Sponsors</h2>
+              <AdPerformanceStats />
+            </div>
+
+            {/* Placement Preview Section */}
+            <div className="max-w-4xl mx-auto mb-12">
+              <h2 className="text-2xl font-bold text-center mb-8">How Your Sponsorship Appears</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Website Preview */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      <Eye className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">Website Ad</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-muted/30 rounded-lg p-4 border">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Ad</p>
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
+                          <span className="text-lg font-bold text-primary">Y</span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold">Your Product Name</h4>
+                          <p className="text-sm text-muted-foreground">Your tagline appears here with your branding</p>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-10 h-10 border border-primary rounded-lg flex items-center justify-center">
+                            <span className="text-primary font-bold">▲</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground mt-1">123</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      Appears at the top of the homepage in a dedicated "Sponsored" section, visible to all monthly active users.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Newsletter Preview */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">Newsletter Feature</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-muted/30 rounded-lg p-4 border">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">This Week's Sponsor</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
+                            <span className="font-bold text-primary">Y</span>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold">Your Product Name</h4>
+                            <p className="text-xs text-muted-foreground">yourproduct.com</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Featured description of your product reaching 2,000+ engaged subscribers.
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      Featured prominently in our weekly newsletter sent to 2,000+ builders and AI enthusiasts.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* FAQ Section */}
+            <div className="max-w-2xl mx-auto mb-12">
+              <h2 className="text-2xl font-bold text-center mb-8">
+                Frequently Asked Questions
+              </h2>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>What are the requirements for advertising?</AccordionTrigger>
+                  <AccordionContent>
+                    You need to have a launched product on Launch to advertise. Your product must be approved and live before you can purchase advertising. This ensures all sponsored products meet our quality standards.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>When does my sponsorship start?</AccordionTrigger>
+                  <AccordionContent>
+                    Your sponsorship starts on the first day of your selected month(s). For example, if you select "January 2025", your placement will be active from January 1st through January 31st.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>How many sponsored slots are available?</AccordionTrigger>
+                  <AccordionContent>
+                    Website inventory rotates fairly across every active advertiser. The sidebar shows 2 ads per page (weighted random), the inline ad appears twice on every product page (above comments and below related launches), and homepage banners are shuffled on each load. Newsletter sponsorships remain limited to one per issue so the inbox slot stays uncrowded.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-rotation">
+                  <AccordionTrigger>How does rotation work between advertisers?</AccordionTrigger>
+                  <AccordionContent>
+                    Every active ad is picked using a weighted-random algorithm, so each partner gets a fair share of impressions regardless of when they bought. We can boost a campaign's <code>weight</code> if you upgrade your placement — higher weight = more frequent appearances.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-dashboard">
+                  <AccordionTrigger>Where do I see my ad performance?</AccordionTrigger>
+                  <AccordionContent>
+                    Once your campaign goes live, sign in and head to <a href="/advertising" className="text-primary underline">/advertising</a> — you'll get a full dashboard with impressions, clicks, CTR, and per-placement breakdowns for every active campaign you own (homepage, category, product inline/sidebar, and newsletter).
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-4">
+                  <AccordionTrigger>Can I get a refund?</AccordionTrigger>
+                  <AccordionContent>
+                    Full refunds are available if requested before your sponsorship period starts. Once your sponsorship is active, refunds are not available. Please contact us at alex@trylaunch.ai for any refund requests.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-5">
+                  <AccordionTrigger>Can I change my selected product after purchase?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes, you can request to change the sponsored product before your sponsorship period begins. Contact us at alex@trylaunch.ai with your request.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-6">
+                  <AccordionTrigger>Will I receive analytics or performance data?</AccordionTrigger>
+                  <AccordionContent>
+                    You can view your product's analytics on Launch, including page views and clicks. For newsletter campaigns, we can provide open rates upon request.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <div className="max-w-5xl mx-auto">
+            {/* Back Button */}
+            <Button 
+              variant="ghost" 
+              onClick={handleBack}
+              className="mb-6 gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back to options
+            </Button>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              {/* Form - Left Column */}
+              <div className="lg:col-span-3 order-2 lg:order-1">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Get Started</CardTitle>
+                    <CardDescription>Select your months and fill in your details</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Month Selection */}
+                  <div className="space-y-3">
+                    <Label className={formErrors.months ? 'text-destructive' : ''}>
+                      Select Month(s) to Advertise *
+                    </Label>
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !selectedMonths.length && "text-muted-foreground",
+                            formErrors.months && "border-destructive"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedMonths.length > 0 
+                            ? `${selectedMonths.length} month${selectedMonths.length > 1 ? 's' : ''} selected`
+                            : "Click to select months"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-4" align="start">
+                        <MonthYearPicker onSelect={handleMonthSelect} />
+                      </PopoverContent>
+                    </Popover>
+                    {formErrors.months && (
+                      <p className="text-sm text-destructive">{formErrors.months}</p>
+                    )}
+                    
+                    {selectedMonths.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {selectedMonths.map((month) => (
+                          <Badge 
+                            key={month.getTime()} 
+                            variant="secondary"
+                            className="flex items-center gap-1 py-1.5 px-3"
+                          >
+                            {format(month, 'MMMM yyyy')}
+                            <button
+                              type="button"
+                              onClick={() => removeMonth(month)}
+                              className="ml-1 hover:text-destructive"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+
+
+                  {/* Ad type selector */}
+                  <div className="space-y-2">
+                    <Label>Ad Type *</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAdType('product')}
+                        className={cn(
+                          'border rounded-lg p-3 text-left transition-colors',
+                          adType === 'product'
+                            ? 'border-primary ring-2 ring-primary bg-primary/5'
+                            : 'border-border hover:bg-muted/40'
+                        )}
+                      >
+                        <div className="font-medium text-sm">Use existing product</div>
+                        <div className="text-xs text-muted-foreground">Promote one of your launched products</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAdType('custom')}
+                        className={cn(
+                          'border rounded-lg p-3 text-left transition-colors',
+                          adType === 'custom'
+                            ? 'border-primary ring-2 ring-primary bg-primary/5'
+                            : 'border-border hover:bg-muted/40'
+                        )}
+                      >
+                        <div className="font-medium text-sm">Create custom ad</div>
+                        <div className="text-xs text-muted-foreground">Bring your own creative + URL</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {adType === 'product' ? (
+                    <div className="space-y-2">
+                      <Label className={formErrors.product ? 'text-destructive' : ''}>
+                        Select Product *
+                      </Label>
+                      {launchedProducts.length === 0 && !isLoadingProducts ? (
+                        <div className="p-4 border rounded-md bg-muted/50">
+                          <p className="text-sm text-muted-foreground">
+                            You don't have any launched products yet.{' '}
+                            <a href="/submit" className="text-primary hover:underline">
+                              Submit a product
+                            </a>{' '}
+                            first, or switch to <strong>Create custom ad</strong> above.
+                          </p>
+                        </div>
+                      ) : (
+                        <Select
+                          value={selectedProductId}
+                          onValueChange={(value) => {
+                            setSelectedProductId(value);
+                            if (formErrors.product) setFormErrors(prev => ({ ...prev, product: '' }));
+                          }}
+                          disabled={isLoadingProducts}
+                        >
+                          <SelectTrigger className={formErrors.product ? 'border-destructive' : ''}>
+                            <SelectValue placeholder={isLoadingProducts ? "Loading products..." : "Select a product to sponsor"} />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background">
+                            {launchedProducts.map((product) => (
+                              <SelectItem key={product.id} value={product.id}>
+                                <div className="flex items-center gap-3">
+                                  <img
+                                    src={product.iconUrl || defaultProductIcon}
+                                    alt={product.name || 'Product'}
+                                    className="w-8 h-8 rounded-md object-cover flex-shrink-0"
+                                  />
+                                  <div className="flex flex-col">
+                                    <span>{product.name}</span>
+                                    {product.tagline && (
+                                      <span className="text-xs text-muted-foreground line-clamp-1">{product.tagline}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {formErrors.product && (
+                        <p className="text-sm text-destructive">{formErrors.product}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4 border rounded-lg p-4 bg-muted/20">
+                      <div className="space-y-2">
+                        <Label className={formErrors.custom_image ? 'text-destructive' : ''}>
+                          Custom Image * <span className="text-xs text-muted-foreground font-normal">(JPG/PNG/WEBP, min 600×315, max 5MB)</span>
+                        </Label>
+                        {customAd.image_url ? (
+                          <div className="relative">
+                            <img
+                              src={customAd.image_url}
+                              alt="Ad creative preview"
+                              className="w-full max-h-48 object-cover rounded-md border"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              className="absolute top-2 right-2"
+                              onClick={() => setCustomAd(prev => ({ ...prev, image_url: '' }))}
+                            >
+                              <X className="h-3 w-3 mr-1" /> Replace
+                            </Button>
+                          </div>
+                        ) : (
+                          <label
+                            className={cn(
+                              'flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-md p-6 cursor-pointer hover:bg-muted/40 transition-colors',
+                              formErrors.custom_image && 'border-destructive'
+                            )}
+                          >
+                            {uploadingImage ? (
+                              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                            ) : (
+                              <Upload className="h-6 w-6 text-muted-foreground" />
+                            )}
+                            <span className="text-sm text-muted-foreground">
+                              {uploadingImage ? 'Uploading…' : 'Click to upload your creative'}
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/jpg,image/png,image/webp"
+                              className="hidden"
+                              disabled={uploadingImage}
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) handleCustomImageUpload(f);
+                                e.target.value = '';
+                              }}
+                            />
+                          </label>
+                        )}
+                        {formErrors.custom_image && (
+                          <p className="text-sm text-destructive">{formErrors.custom_image}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="custom_title" className={formErrors.custom_title ? 'text-destructive' : ''}>
+                            Custom Title *
+                          </Label>
+                          <span className="text-xs text-muted-foreground">{customAd.title.length}/80</span>
+                        </div>
+                        <Input
+                          id="custom_title"
+                          maxLength={80}
+                          value={customAd.title}
+                          onChange={(e) => {
+                            setCustomAd(prev => ({ ...prev, title: e.target.value }));
+                            if (formErrors.custom_title) setFormErrors(prev => ({ ...prev, custom_title: '' }));
+                          }}
+                          placeholder="Catchy headline for your ad"
+                          className={formErrors.custom_title ? 'border-destructive' : ''}
+                        />
+                        {formErrors.custom_title && (
+                          <p className="text-sm text-destructive">{formErrors.custom_title}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="custom_description" className={formErrors.custom_description ? 'text-destructive' : ''}>
+                            Custom Description
+                          </Label>
+                          <span className="text-xs text-muted-foreground">{customAd.description.length}/180</span>
+                        </div>
+                        <Textarea
+                          id="custom_description"
+                          maxLength={180}
+                          rows={2}
+                          value={customAd.description}
+                          onChange={(e) => {
+                            setCustomAd(prev => ({ ...prev, description: e.target.value }));
+                            if (formErrors.custom_description) setFormErrors(prev => ({ ...prev, custom_description: '' }));
+                          }}
+                          placeholder="Short tagline shown below the title"
+                          className={formErrors.custom_description ? 'border-destructive' : ''}
+                        />
+                        {formErrors.custom_description && (
+                          <p className="text-sm text-destructive">{formErrors.custom_description}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="custom_target_url" className={formErrors.custom_target_url ? 'text-destructive' : ''}>
+                          Destination URL * <span className="text-xs text-muted-foreground font-normal">(https only)</span>
+                        </Label>
+                        <Input
+                          id="custom_target_url"
+                          type="url"
+                          inputMode="url"
+                          value={customAd.target_url}
+                          onChange={(e) => {
+                            setCustomAd(prev => ({ ...prev, target_url: e.target.value.trim() }));
+                            if (formErrors.custom_target_url) setFormErrors(prev => ({ ...prev, custom_target_url: '' }));
+                          }}
+                          placeholder="https://yoursite.com"
+                          className={formErrors.custom_target_url ? 'border-destructive' : ''}
+                        />
+                        {formErrors.custom_target_url && (
+                          <p className="text-sm text-destructive">{formErrors.custom_target_url}</p>
+                        )}
+                      </div>
+
+                      {/* Live preview */}
+                      {(customAd.image_url || customAd.title) && (
+                        <div className="space-y-2">
+                          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Preview</Label>
+                          <div className="border rounded-lg p-4 bg-background">
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Ad</p>
+                            {customAd.image_url && (
+                              <img
+                                src={customAd.image_url}
+                                alt=""
+                                className="w-full h-32 object-cover rounded-md mb-3"
+                              />
+                            )}
+                            <p className="font-semibold text-sm">{customAd.title || 'Your title'}</p>
+                            {customAd.description && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{customAd.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Additional Message</Label>
+                    <Textarea
+                      id="message"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="Tell us about your product or any questions you have..."
+                      rows={4}
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={
+                      isSubmitting ||
+                      uploadingImage ||
+                      selectedMonths.length === 0 ||
+                      (adType === 'product' && !selectedProductId) ||
+                      (adType === 'custom' && (!customAd.image_url || !customAd.title.trim() || !customAd.target_url.trim()))
+                    }
+                    className="w-full"
+                  >
+                    {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+                  </Button>
+
+                  <StripeBadge />
+                </form>
+              </CardContent>
+            </Card>
+              </div>
+
+              {/* Selected Package Summary - Right Column */}
+              <div className="lg:col-span-2 order-1 lg:order-2">
+                <div className="sticky top-6 space-y-6">
+                  {/* Package Summary */}
+                  <div className="p-6 bg-muted/30 rounded-lg border">
+                    <p className="text-sm text-muted-foreground mb-1">Selected package:</p>
+                    <p className="text-xl font-semibold mb-4">
+                      {selectedType === 'website' && 'Website Ad'}
+                      {selectedType === 'newsletter' && 'Newsletter Sponsorship'}
+                      {selectedType === 'combined' && 'Combined Package'}
+                    </p>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Price per month</span>
+                        <span className="font-medium">${getPrice().toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Months selected</span>
+                        <span className="font-medium">{selectedMonths.length}</span>
+                      </div>
+                      {selectedMonths.length > 0 && (
+                        <div className="pt-3 border-t">
+                          <p className="text-xs text-muted-foreground mb-2">Selected months:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {selectedMonths.map((month) => (
+                              <Badge key={month.getTime()} variant="outline" className="text-xs">
+                                {format(month, 'MMM yyyy')}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="pt-4 border-t">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Total</span>
+                        <span className="text-3xl font-bold text-primary">
+                          ${calculateTotal().toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <StripeBadge />
+                  </div>
+
+                  {/* Ad Preview Section */}
+                  {selectedProductId && (selectedType === 'website' || selectedType === 'combined') && (
+                    <div className="p-4 bg-muted/30 rounded-lg border">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Eye className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium">Website Preview</p>
+                      </div>
+                      <div className="bg-background rounded-lg p-3 border">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Ad</p>
+                        <div className="flex items-start gap-3">
+                          <img 
+                            src={getSelectedProduct()?.iconUrl || defaultProductIcon} 
+                            alt={getSelectedProduct()?.name || 'Product'}
+                            className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">{getSelectedProduct()?.name || 'Your Product'}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{getSelectedProduct()?.tagline || 'Your tagline appears here'}</p>
+                          </div>
+                          <div className="flex flex-col items-center flex-shrink-0">
+                            <div className="w-8 h-8 border border-primary rounded-md flex items-center justify-center">
+                              <span className="text-primary text-sm font-bold">▲</span>
+                            </div>
+                            <span className="text-[10px] text-muted-foreground mt-0.5">123</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-2">
+                        Appears at the top of the homepage
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedProductId && (selectedType === 'newsletter' || selectedType === 'combined') && (
+                    <div className="p-4 bg-muted/30 rounded-lg border">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Mail className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium">Newsletter Preview</p>
+                      </div>
+                      <div className="bg-background rounded-lg p-3 border">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">This Week's Sponsor</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={getSelectedProduct()?.iconUrl || defaultProductIcon} 
+                              alt={getSelectedProduct()?.name || 'Product'}
+                              className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                            />
+                            <div className="min-w-0">
+                              <h4 className="font-semibold text-sm truncate">{getSelectedProduct()?.name || 'Your Product'}</h4>
+                              <p className="text-[10px] text-muted-foreground">trylaunch.ai/launch/{getSelectedProduct()?.slug || 'your-product'}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {getSelectedProduct()?.tagline || 'Featured description of your product reaching 2,000+ engaged subscribers.'}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-2">
+                        Featured in our weekly newsletter
+                      </p>
+                    </div>
+                  )}
+
+                  {!selectedProductId && (
+                    <div className="p-4 bg-muted/20 rounded-lg border border-dashed">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Eye className="h-4 w-4" />
+                        <p className="text-sm">Select a product to see your ad preview</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-8 text-center">
+          <p className="text-muted-foreground">
+            Questions?{' '}
+            <a href="mailto:alex@trylaunch.ai" className="text-primary hover:underline">
+              Contact us
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Advertise;

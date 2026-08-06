@@ -1,0 +1,340 @@
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Copy, Check, Download } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import badgeGolden from '@/assets/badge-golden.png';
+import badgeSilver from '@/assets/badge-silver.png';
+import badgeBronze from '@/assets/badge-bronze.png';
+import badgeWhite from '@/assets/badge-white.png';
+import badgeColor from '@/assets/badge-color.png';
+
+interface ProductBadgeEmbedProps {
+  productId: string;
+  productSlug: string;
+  productName: string;
+  categories?: string[];
+  wonDaily?: boolean;
+  wonWeekly?: boolean;
+  wonMonthly?: boolean;
+}
+
+type BadgeTheme = 'white' | 'color' | 'gold' | 'silver' | 'bronze';
+
+const ProductBadgeEmbed = ({ productId, productSlug, productName, categories = [], wonDaily = false, wonWeekly = false, wonMonthly = false }: ProductBadgeEmbedProps) => {
+  const [copiedBasic, setCopiedBasic] = useState<BadgeTheme | null>(null);
+  const [copiedWithCategories, setCopiedWithCategories] = useState<BadgeTheme | null>(null);
+  const badgeRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  const productUrl = `https://trylaunch.ai/launch/${productSlug}`;
+
+  const trackBadgeEvent = async (eventType: 'badge_copy' | 'badge_download') => {
+    try {
+      const visitorId = localStorage.getItem('visitor_id') || crypto.randomUUID();
+      localStorage.setItem('visitor_id', visitorId);
+      
+      await supabase.from('product_analytics').insert({
+        product_id: productId,
+        event_type: eventType,
+        visitor_id: visitorId,
+      });
+    } catch (error) {
+      console.error('Failed to track badge event:', error);
+    }
+  };
+
+  const getThemeTextColor = (theme: BadgeTheme) => {
+    switch (theme) {
+      case 'white': return '#FFFFFF';
+      case 'color': return '#313131';
+      case 'gold': return '#313131';
+      case 'silver': return '#313131';
+      case 'bronze': return '#313131';
+    }
+  };
+
+  const getBadgeImageUrl = (theme: BadgeTheme) => {
+    switch (theme) {
+      case 'gold':
+        return 'https://trylaunch.ai/badges/badge-golden.png';
+      case 'silver':
+        return 'https://trylaunch.ai/badges/badge-silver.png';
+      case 'bronze':
+        return 'https://trylaunch.ai/badges/badge-bronze.png';
+      case 'white':
+        return 'https://trylaunch.ai/badges/badge-white.png';
+      case 'color':
+        return 'https://trylaunch.ai/badges/badge-color.png';
+    }
+  };
+
+  const generateBasicBadgeHTML = (theme: BadgeTheme) => {
+    const logoUrl = getBadgeImageUrl(theme);
+    return `<!-- Launch Badge - Embed this badge and get a dofollow backlink! -->
+<a href="${productUrl}" target="_blank" rel="dofollow" style="display: inline-block; text-decoration: none;">
+  <img src="${logoUrl}" alt="Featured on Launch" height="53" style="display: block; height: 53px; width: auto;" />
+</a>`;
+  };
+
+  const generateCategoryBadgeHTML = (theme: BadgeTheme) => {
+    const logoUrl = getBadgeImageUrl(theme);
+    const textColor = getThemeTextColor(theme);
+    const categoriesText = categories.slice(0, 2).join(' · ');
+    
+    return `<!-- Launch Badge - Embed this badge and get a dofollow backlink! -->
+<a href="${productUrl}" target="_blank" rel="dofollow" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <img src="${logoUrl}" alt="Featured on Launch" height="53" style="display: inline-block; height: 53px; width: auto; vertical-align: middle;" />
+  ${categoriesText ? `<span style="display: inline-block; font-size: 13px; font-weight: 500; color: ${textColor}; opacity: 0.7; white-space: nowrap; vertical-align: middle;">${categoriesText}</span>` : ''}
+</a>`;
+  };
+
+  const copyToClipboard = (html: string, type: 'basic' | 'category', theme: BadgeTheme) => {
+    navigator.clipboard.writeText(html);
+    trackBadgeEvent('badge_copy');
+    if (type === 'basic') {
+      setCopiedBasic(theme);
+      setTimeout(() => setCopiedBasic(null), 2000);
+    } else {
+      setCopiedWithCategories(theme);
+      setTimeout(() => setCopiedWithCategories(null), 2000);
+    }
+    toast.success('Embed code copied to clipboard!');
+  };
+
+  const downloadAsImage = async (type: 'basic' | 'category', theme: BadgeTheme) => {
+    const refKey = `${type}-${theme}`;
+    const element = badgeRefs.current[refKey];
+    
+    if (!element) {
+      toast.error('Failed to capture badge');
+      return;
+    }
+
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      
+      const canvas = await html2canvas(element, {
+        backgroundColor: null,
+        scale: 3,
+      });
+      
+      const link = document.createElement('a');
+      link.download = `${productName.replace(/\s+/g, '-')}-badge-${theme}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      
+      trackBadgeEvent('badge_download');
+      toast.success('Badge downloaded as image!');
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error('Failed to download badge');
+    }
+  };
+
+  const getBadgeImage = (theme: BadgeTheme) => {
+    switch (theme) {
+      case 'gold':
+        return badgeGolden;
+      case 'silver':
+        return badgeSilver;
+      case 'bronze':
+        return badgeBronze;
+      case 'white':
+        return badgeWhite;
+      case 'color':
+        return badgeColor;
+    }
+  };
+
+  const renderPreview = (theme: BadgeTheme, withCategories: boolean, type: 'basic' | 'category') => {
+    const badgeSrc = getBadgeImage(theme);
+    const textColor = getThemeTextColor(theme);
+    const refKey = `${type}-${theme}`;
+    
+    return (
+      <div 
+        ref={(el) => (badgeRefs.current[refKey] = el)}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        <img src={badgeSrc} alt="Featured on Launch" style={{ display: 'inline-block', height: '53px', width: 'auto', verticalAlign: 'middle' }} />
+        {withCategories && categories.length > 0 && (
+          <span 
+            style={{
+              display: 'inline-block',
+              fontSize: '13px',
+              fontWeight: '500',
+              whiteSpace: 'nowrap',
+              opacity: 0.7,
+              verticalAlign: 'middle',
+              color: textColor,
+            }}
+          >
+            {categories.slice(0, 2).join(' · ')}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  // Determine which award badge to show
+  const getAwardBadgeTheme = (): BadgeTheme | null => {
+    if (wonMonthly) return 'gold';
+    if (wonWeekly) return 'silver';
+    if (wonDaily) return 'bronze';
+    return null;
+  };
+
+  const getAwardLabel = (): string => {
+    if (wonMonthly) return '🥇 Gold — #1 Product of the Month';
+    if (wonWeekly) return '🥈 Silver — #2 Product of the Month';
+    if (wonDaily) return '🥉 Bronze — #3 Product of the Month';
+    return '';
+  };
+
+  const awardTheme = getAwardBadgeTheme();
+  const hasWon = awardTheme !== null;
+
+  return (
+    <div className="border-t pt-6 mt-6">
+      <h3 className="text-base font-semibold mb-2">Embeddable Launch Badges</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        Copy the embed code to add these badges to your website to get a dofollow backlink.
+      </p>
+
+      {hasWon && awardTheme && (
+        <div className="mb-6">
+          <h4 className="text-sm font-medium mb-1 text-muted-foreground">Top Product Badge</h4>
+          <p className="text-xs text-muted-foreground mb-3">{getAwardLabel()}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground capitalize mb-2">Basic</div>
+              <div className="flex items-center justify-center p-4 rounded-lg border bg-white mb-2">
+                {renderPreview(awardTheme, false, 'basic')}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => copyToClipboard(generateBasicBadgeHTML(awardTheme), 'basic', awardTheme)}
+                >
+                  {copiedBasic === awardTheme ? <><Check className="h-3 w-3 mr-2" />Copied!</> : <><Copy className="h-3 w-3 mr-2" />Embed</>}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => downloadAsImage('basic', awardTheme)}
+                >
+                  <Download className="h-3 w-3 mr-2" />
+                  Image
+                </Button>
+              </div>
+            </div>
+            {categories.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground capitalize mb-2">With Categories</div>
+                <div className="flex items-center justify-center p-4 rounded-lg border bg-white mb-2">
+                  {renderPreview(awardTheme, true, 'category')}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => copyToClipboard(generateCategoryBadgeHTML(awardTheme), 'category', awardTheme)}
+                  >
+                    {copiedWithCategories === awardTheme ? <><Check className="h-3 w-3 mr-2" />Copied!</> : <><Copy className="h-3 w-3 mr-2" />Embed</>}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => downloadAsImage('category', awardTheme)}
+                  >
+                    <Download className="h-3 w-3 mr-2" />
+                    Image
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="mb-6">
+        <h4 className="text-sm font-medium mb-3 text-muted-foreground">Basic Badge</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {(['color', 'white'] as BadgeTheme[]).map((theme) => (
+            <div key={theme} className="space-y-2">
+              <div className="text-xs text-muted-foreground capitalize mb-2">{theme}</div>
+              <div className="flex items-center justify-center p-4 rounded-lg border bg-muted/30 mb-2">
+                {renderPreview(theme, false, 'basic')}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => copyToClipboard(generateBasicBadgeHTML(theme), 'basic', theme)}
+                >
+                  {copiedBasic === theme ? <><Check className="h-3 w-3 mr-2" />Copied!</> : <><Copy className="h-3 w-3 mr-2" />Embed</>}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => downloadAsImage('basic', theme)}
+                >
+                  <Download className="h-3 w-3 mr-2" />
+                  Image
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {categories.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-3 text-muted-foreground">Badge with Categories</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(['color', 'white'] as BadgeTheme[]).map((theme) => (
+              <div key={theme} className="space-y-2">
+                <div className="text-xs text-muted-foreground capitalize mb-2">{theme}</div>
+                <div className="flex items-center justify-center p-4 rounded-lg border bg-muted/30 mb-2">
+                  {renderPreview(theme, true, 'category')}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => copyToClipboard(generateCategoryBadgeHTML(theme), 'category', theme)}
+                  >
+                    {copiedWithCategories === theme ? <><Check className="h-3 w-3 mr-2" />Copied!</> : <><Copy className="h-3 w-3 mr-2" />Embed</>}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => downloadAsImage('category', theme)}
+                  >
+                    <Download className="h-3 w-3 mr-2" />
+                    Image
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProductBadgeEmbed;

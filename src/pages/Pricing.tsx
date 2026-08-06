@@ -1,0 +1,510 @@
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Check, X, Lock, Rocket, RefreshCw, Zap, Calendar, TrendingUp, Mail, Award } from 'lucide-react';
+import { PRICING_PLANS } from '@/lib/constants';
+import stripeLogo from '@/assets/stripe-logo.png';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import jakeAvatar from '@/assets/jake-avatar.jpg';
+import yogeshAvatar from '@/assets/yogesh-avatar.jpg';
+import { TrustPhrase } from '@/hooks/use-member-count';
+import { PlatformStats } from '@/components/PlatformStats';
+
+
+
+const FEATURE_CONFIG = [
+  { key: 'listing', label: 'Homepage listing', icon: TrendingUp },
+  { key: 'socialPromotion', label: 'Social media promotion', icon: Zap },
+  { key: 'newsletter', label: 'Newsletter feature', icon: Mail },
+  { key: 'chooseDate', label: 'Choose launch date', icon: Calendar },
+  { key: 'badge', label: 'Verified badge', icon: Award },
+] as const;
+
+const Pricing = () => {
+
+  return (
+    <>
+      <Helmet>
+        <title>Launch Your Product - Pricing | Launch</title>
+        <meta name="description" content="Get your product in front of thousands of technologists, marketers and founders. Choose from Free, Lite, Pro, or custom launch plans." />
+        <link rel="canonical" href="https://trylaunch.ai/pricing" />
+        <meta property="og:title" content="Launch Your Product - Pricing | Launch" />
+        <meta property="og:description" content="Get your product in front of thousands of technologists, marketers and founders." />
+        <meta property="og:url" content="https://trylaunch.ai/pricing" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What's the difference between Free and Pro launches?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Free launches join the standard queue. Pro launches include social media promotion, newsletter features, the ability to choose your launch date, and a verified badge." }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I relaunch my product?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can relaunch your product with updated positioning. Relaunch pricing starts at $29." }
+            },
+            {
+              "@type": "Question",
+              "name": "Do I get a dofollow backlink?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes, all product listings on Launch include a dofollow backlink to your website automatically." }
+            },
+            {
+              "@type": "Question",
+              "name": "How does the launch queue work?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Free launches join a standard queue and are published when a slot is available. Paid plans let you skip the queue and choose your launch date." }
+            }
+          ]
+        })}</script>
+      </Helmet>
+    <div className="min-h-screen bg-background py-16">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Launch Your Thing</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
+            Get in front of thousands of vibe coders, builders, and founders shipping their own thing.
+          </p>
+          
+        </div>
+
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {PRICING_PLANS.filter(plan => plan.id !== 'relaunch' && plan.id !== 'join' && plan.id !== 'grow').map((plan) => (
+            <Card 
+              key={plan.id} 
+              className={`relative hover:shadow-lg transition-shadow ${
+                plan.highlight ? 'border-primary shadow-md' : ''
+              }`}
+            >
+              {plan.badge && (
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  {plan.badge}
+                </Badge>
+              )}
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xl">
+                  {plan.name}
+                </CardTitle>
+                <CardDescription className="text-sm">{plan.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {plan.id === 'skip' ? (
+                  <div className="space-y-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold">${plan.price}</span>
+                      <span className="text-sm text-muted-foreground">USD</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <div className="text-3xl font-bold">
+                      ${plan.price}<span className="text-sm font-normal text-muted-foreground"> USD</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Standard launch queue ~3 days</p>
+                  </div>
+                )}
+
+                <ul className="space-y-2">
+                  {plan.id === 'skip' && (
+                    <li className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                      <span>Guaranteed high authority backlink</span>
+                    </li>
+                  )}
+                  {FEATURE_CONFIG.map(({ key, label }) => {
+                    const hasFeature = plan.features[key as keyof typeof plan.features];
+                    return (
+                      <li key={key} className="flex items-center gap-2 text-sm">
+                        {hasFeature ? (
+                          <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        ) : (
+                          <X className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
+                        )}
+                        <span className={!hasFeature ? 'text-muted-foreground/60' : ''}>
+                          {label}
+                        </span>
+                      </li>
+                    );
+                  })}
+                  {plan.id === 'free' && (
+                    <li className="flex items-center gap-2 text-sm">
+                      <X className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
+                      <span className="text-muted-foreground/60">Standard launch queue</span>
+                    </li>
+                  )}
+                  {plan.id === 'skip' && (
+                    <li className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                      <span>Skip the queue — launch today</span>
+                    </li>
+                  )}
+                </ul>
+
+                {/* Value callout */}
+                {plan.id === 'skip' && (
+                  <div className="pt-2 border-t space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">~380 views avg</span> vs ~12 on Free
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      8 of last week's top 10 launches were Pro
+                    </p>
+                  </div>
+                )}
+
+                <Button 
+                  asChild
+                  className="w-full" 
+                  size="lg"
+                  variant={plan.highlight ? 'default' : 'outline'}
+                >
+                  <Link to={plan.id === 'free' ? '/submit?plan=free' : '/submit'}>
+                    {plan.price === 0 ? 'Start Free' : 'Get Started'}
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Grow Card */}
+          <Card className="relative hover:shadow-lg transition-shadow border-primary shadow-md">
+            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+              Most Impact
+            </Badge>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl">Grow</CardTitle>
+              <CardDescription className="text-sm">Pro + directory submissions</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold">$199</span>
+                  <span className="text-sm text-muted-foreground">USD</span>
+                </div>
+              </div>
+
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span className="font-medium">Everything in Pro, plus:</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Submit your startup to 120+ startup directories</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Manual submission by our team</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>High-quality backlink opportunities</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Save 20+ hours of manual work</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Progress tracking + confirmation</span>
+                </li>
+              </ul>
+
+              <div className="pt-2 border-t space-y-1">
+                <p className="text-xs text-muted-foreground">
+                  Includes: <span className="font-medium text-foreground">G2, Product Hunt, There's An AI For That, Hacker News, Peerlist, BetaList, Uneed, Alternative.me, Indie Hackers</span> and 110+ more
+                </p>
+              </div>
+
+              <Button asChild className="w-full" size="lg">
+                <Link to="/submit">Get Started</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Pass Card - shown below primary plans */}
+        <div className="mt-8 max-w-md mx-auto">
+          <Card className="relative hover:shadow-lg transition-shadow border-primary shadow-md">
+            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+              Best Value
+            </Badge>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl">Pass</CardTitle>
+              <CardDescription className="text-sm">Unlimited launches</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-3xl font-bold">
+                $99<span className="text-sm font-normal text-muted-foreground"> / year</span>
+              </div>
+
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Guaranteed high authority backlink</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Everything in Pro</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>Unlimited launches & relaunches</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>All future features · 12 months access</span>
+                </li>
+              </ul>
+
+              <div className="pt-2 border-t space-y-1">
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">Pays for itself in 3 launches</span> ($117 vs $99)
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Best for makers shipping multiple products
+                </p>
+              </div>
+
+              <Button asChild className="w-full" size="lg">
+                <Link to="/pass">Get Pass</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+
+
+
+
+        <div className="mt-6 text-center space-y-2">
+          <p className="text-muted-foreground">
+            Maximum 1 launch per week across all plans
+          </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-6">
+          <Lock className="h-4 w-4" />
+          <span>Payments secured by</span>
+          <img src={stripeLogo} alt="Stripe" className="h-6" />
+        </div>
+
+        {/* Testimonials */}
+        <div className="mt-16 max-w-3xl mx-auto space-y-8">
+          <h2 className="text-2xl font-bold text-center mb-8">What Makers Are Saying</h2>
+          
+          {/* Jake's Testimonial */}
+          <blockquote className="text-center">
+            <p className="text-sm md:text-base leading-relaxed text-foreground/90 mb-4">
+              "AdGenerator got great visibility from launching here. The engaged audience helped us get our first paying customers fast."
+            </p>
+            <footer className="flex items-center justify-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={jakeAvatar} alt="Jake" />
+                <AvatarFallback>JH</AvatarFallback>
+              </Avatar>
+              <div className="text-sm text-left">
+                <div className="font-medium">Jake</div>
+                <div className="text-muted-foreground">
+                  AdGenerator · <a 
+                    href="https://x.com/jakeh2792" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >@jakeh2792</a>
+                </div>
+              </div>
+            </footer>
+          </blockquote>
+
+          {/* Yogesh's Testimonial */}
+          <blockquote className="text-center">
+            <p className="text-sm md:text-base leading-relaxed text-foreground/90 mb-4">
+              "Launched Supalytics on Launch and got instant traffic. The community here actually engages with products — not just scrolls past. Best decision for getting early users."
+            </p>
+            <footer className="flex items-center justify-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={yogeshAvatar} alt="Yogesh" />
+                <AvatarFallback>YA</AvatarFallback>
+              </Avatar>
+              <div className="text-sm text-left">
+                <div className="font-medium">Yogesh</div>
+                <div className="text-muted-foreground">
+                  Supalytics · <a 
+                    href="https://x.com/yogesharc" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >@yogesharc</a>
+                </div>
+              </div>
+            </footer>
+          </blockquote>
+        </div>
+
+
+        {/* Advertising Section */}
+        <div className="mt-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Advertising</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+              Reach a highly engaged audience of builders and AI early adopters
+            </p>
+            
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <Card className="hover:shadow-lg transition-shadow flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-xl">Website Ad</CardTitle>
+                <CardDescription>30-day sponsored listing on homepage</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 flex flex-col flex-1">
+                <div className="text-4xl font-bold">
+                  $99<span className="text-base font-normal text-muted-foreground"> / listing</span>
+                </div>
+                <ul className="space-y-3 flex-1">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Sponsored listing on Launch homepage</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Visible to thousands of founders & builders</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Clearly labelled. No impact on rankings.</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" size="lg">
+                  <Link to="/advertise">Get Started</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-xl">Newsletter Sponsorship</CardTitle>
+                <CardDescription>Featured sponsor in our weekly newsletter</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 flex flex-col flex-1">
+                <div className="text-4xl font-bold">
+                  $149<span className="text-base font-normal text-muted-foreground"> / issue</span>
+                </div>
+                <ul className="space-y-3 flex-1">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Featured sponsor section in one weekly newsletter</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Sent to ~2,000 founders, makers & early-stage teams</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">25% email open rate</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" size="lg">
+                  <Link to="/advertise">Get Started</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="relative hover:shadow-lg transition-shadow border-primary shadow-md flex flex-col">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                Best Value
+              </Badge>
+              <CardHeader>
+                <CardTitle className="text-xl">Combined Package</CardTitle>
+                <CardDescription>Website + Newsletter bundle</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 flex flex-col flex-1">
+                <div className="text-4xl font-bold">
+                  $199<span className="text-base font-normal text-muted-foreground"> / bundle</span>
+                </div>
+                <ul className="space-y-3 flex-1">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">30-day homepage sponsorship</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">One newsletter sponsorship</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">Save $49 with bundle</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" size="lg">
+                  <Link to="/advertise">Get Started</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Custom Package Card */}
+        <div className="max-w-md mx-auto mt-6">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-xl">Custom Package</CardTitle>
+              <CardDescription>Tailored campaigns for your brand</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Fully managed campaigns</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Display or multi-channel campaigns</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Newsletters, events, or other promoted content</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Customized to meet your campaign goals</span>
+                </li>
+              </ul>
+              <Button 
+                asChild
+                className="w-full" 
+                size="lg"
+                variant="outline"
+              >
+                <Link to="/media-kit">Get Started</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-12">
+          <Lock className="h-4 w-4" />
+          <span>Payments secured by</span>
+          <img src={stripeLogo} alt="Stripe" className="h-6" />
+        </div>
+
+        <div className="mt-8 text-center">
+          <p className="text-muted-foreground">
+            All plans include support from our team. Questions?{' '}
+            <a href="mailto:alex@trylaunch.ai" className="text-primary hover:underline">
+              Contact us
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+    </>
+  );
+};
+
+export default Pricing;

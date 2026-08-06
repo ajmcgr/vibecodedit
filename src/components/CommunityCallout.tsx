@@ -1,0 +1,30 @@
+import { Button } from '@/components/ui/button';
+import { Mail, MessageSquare } from 'lucide-react';
+import { TrustPhrase } from '@/hooks/use-member-count';
+
+export const CommunityCallout = () => {
+  return (
+    <div className="w-full bg-muted/30 px-6 py-6 md:py-0 flex items-center md:aspect-[7/1]">
+      <div className="w-full flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="flex-1 text-center md:text-left">
+          <h3 className="text-lg font-semibold mb-1">Join thousands of people building their future</h3>
+          <TrustPhrase className="text-sm text-muted-foreground" />
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+          <Button asChild className="gap-2">
+            <a href="https://newsletter.trylaunch.ai/" target="_blank" rel="noopener noreferrer">
+              <Mail className="h-4 w-4" />
+              Subscribe to Newsletter
+            </a>
+          </Button>
+          <Button asChild variant="outline" className="gap-2">
+            <a href="https://forums.trylaunch.ai/" target="_blank" rel="noopener noreferrer">
+              <MessageSquare className="h-4 w-4" />
+              Join Forums
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
