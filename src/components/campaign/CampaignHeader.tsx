@@ -25,7 +25,7 @@ export const CampaignHeader = () => {
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       trackCampaignEvent('campaign_search_submitted');
-      window.open(`/search?q=${encodeURIComponent(searchQuery.trim())}`, '_blank');
+      window.open(`https://trylaunch.ai/search?q=${encodeURIComponent(searchQuery.trim())}&source=vibecodedit`, '_blank', 'noopener,noreferrer');
       setSearchQuery('');
     }
   };
