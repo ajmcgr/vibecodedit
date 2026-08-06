@@ -150,7 +150,7 @@ export default function CollectionsPreview({ limit = 6, onCount, openInNewWindow
     <>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {shown.map((c) => (
-        <CardWrapper c={c}>
+        <CardWrapper key={c.id} c={c}>
           <div className="aspect-[3/1.6] overflow-hidden">
             <CollectionCoverArt
               slug={c.slug}
