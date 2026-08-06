@@ -75,15 +75,43 @@ export const useCampaignProducts = (limit = 32) =>
         .order('launch_date', { ascending: false })
         .limit(PAGE);
 
-      const [categoriesRes, campaignRes, recentRes] = await Promise.all([
+      // Vibe Coded It tiles submitted directly on this site (public view only —
+      // founder emails are never exposed).
+      const submissionsQuery = (supabase as any)
+        .from('vibecodedit_submissions_public')
+        .select(
+          'id, app_name, website_url, description, category, founder_username, founder_name, screenshot_url, logo_url, launch_product_id, promoted_to_launch, created_at'
+        )
+        .order('created_at', { ascending: false })
+        .limit(PAGE);
+
+      const [categoriesRes, campaignRes, recentRes, submissionsRes] = await Promise.all([
         supabase.from('product_categories').select('id, name'),
         campaignQuery.then((r: any) => r).catch(() => ({ data: [], error: null })),
         recentQuery,
+        submissionsQuery.then((r: any) => r).catch(() => ({ data: [], error: null })),
       ]);
 
       const categoryMap = new Map<number, string>(
         ((categoriesRes.data as any[]) || []).map((c: any) => [c.id, c.name])
       );
+
+      const submissions: BuilderWallProduct[] = ((submissionsRes as any)?.error
+        ? []
+        : ((submissionsRes as any)?.data || [])
+      ).map((s: any) => ({
+        id: s.id,
+        name: s.app_name,
+        tagline: s.description,
+        slug: '',
+        iconUrl: s.logo_url || undefined,
+        screenshotUrl: s.screenshot_url || undefined,
+        category: s.category || undefined,
+        founder: s.founder_username || s.founder_name || undefined,
+        isCampaign: true,
+        isSubmission: true,
+        url: s.website_url,
+      }));
 
       const campaignProducts = mapRows(
         (campaignRes as any)?.error ? [] : ((campaignRes as any)?.data || []),
