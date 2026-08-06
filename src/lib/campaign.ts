@@ -65,7 +65,8 @@ export type CampaignEvent =
   | 'campaign_email_sent'
   | 'campaign_launch_page_view'
   | 'campaign_search_submitted'
-  | 'campaign_newsletter_subscribed';
+  | 'campaign_newsletter_subscribed'
+  | 'sponsor_slot_clicked';
 
 /**
  * Fire-and-forget campaign analytics. No personal information is ever sent —
