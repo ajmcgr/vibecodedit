@@ -209,24 +209,6 @@ const AdPlaceholder = ({ view = 'grid' }: { view?: AdView }) => {
 };
 
 
-const AdvertisePromo = ({ compact = false }: { compact?: boolean }) => (
-  <a
-    href={ADVERTISE_URL}
-    target="_blank"
-    rel="noopener noreferrer"
-    className={`block rounded-lg bg-muted/30 text-left transition-colors hover:bg-muted/60 ${
-      compact ? 'px-3 py-2' : 'p-3'
-    }`}
-  >
-    <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-      Advertise here <ExternalLink className="h-3.5 w-3.5" />
-    </span>
-    <span className="mt-0.5 block text-xs text-muted-foreground">
-      Reach founders shipping vibe coded startups.
-    </span>
-  </a>
-);
-
 /** Pill-shaped ad chip for the mobile marquees. */
 const AdChip = ({ slot }: { slot: SponsorSlot }) => (
   <button
