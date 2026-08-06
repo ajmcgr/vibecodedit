@@ -319,20 +319,31 @@ export const BuilderWall = ({
     );
   }
 
+  const rows: BuilderWallProduct[][] = [];
+  for (let i = 0; i < visible.length; i += perRow) {
+    rows.push(visible.slice(i, i + perRow));
+  }
+
   return (
     <>
-      <div className="w-full">
-        <div className={gridClass}>
-          {visible.map((product) => (
-            <BuilderCard
-              key={product.id}
-              product={product}
-              size={tileSize}
-              onShare={setSharing}
-            />
-          ))}
-        </div>
+      <div className="w-full space-y-8">
+        {rows.map((row, rowIndex) => (
+          <div key={`row-${rowIndex}`} className="space-y-8">
+            {rowIndex % 5 === 0 && <AdRow startIndex={(rowIndex / 5) * 4} />}
+            <div className={gridClass}>
+              {row.map((product) => (
+                <BuilderCard
+                  key={product.id}
+                  product={product}
+                  size={tileSize}
+                  onShare={setSharing}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
+
 
       {hasMore && (
         <div className="text-center mt-8">
