@@ -6,7 +6,7 @@ import { trackCampaignEvent } from '@/lib/campaign';
 import { VibeCodeBadge } from '@/components/campaign/VibeCodeBadge';
 import { CampaignShareModal } from '@/components/campaign/CampaignShareModal';
 import { Button } from '@/components/ui/button';
-import { SaveToCollectionButton } from '@/components/SaveToCollectionButton';
+
 
 const INITIAL_ROWS = 4;
 const LOAD_MORE_ROWS = 5;
@@ -123,12 +123,6 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
-          {!product.isSubmission && <SaveToCollectionButton
-            productId={product.id}
-            productName={product.name}
-            variant="bare"
-            className="rounded-md p-1"
-          />}
           <button
             type="button"
             aria-label={`Share ${product.name}`}
@@ -217,12 +211,6 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           className="flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/card:opacity-100 [@media(hover:none)]:opacity-100"
           onClick={(e) => e.stopPropagation()}
         >
-          {!product.isSubmission && <SaveToCollectionButton
-            productId={product.id}
-            productName={product.name}
-            variant="bare"
-            className="rounded-md p-1"
-          />}
           <button
             type="button"
             aria-label={`Share ${product.name}`}
