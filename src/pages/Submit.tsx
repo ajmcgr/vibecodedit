@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
-import { AdBanner } from '@/components/campaign/AdRail';
 import { supabase } from '@/integrations/supabase/client';
 import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 import { trackCampaignEvent } from '@/lib/campaign';
@@ -118,7 +117,6 @@ const Submit = () => {
       <CampaignSideNav />
 
       <div className="px-4 pt-3 lg:pl-20">
-        <AdBanner />
       </div>
 
       <main className="lg:pl-20">
