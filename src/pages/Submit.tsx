@@ -222,7 +222,44 @@ const Submit = () => {
                 Add your app to the Vibe Coded It wall. No account needed — it publishes instantly.
               </p>
 
+              <div className="mt-6 rounded-xl border border-border bg-muted/30 p-5">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <h2 className="text-sm font-semibold text-foreground">Autofill with AI</h2>
+                </div>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Enter your URL and our AI grabs your name, description, category, screenshot and
+                  logo — then fills the whole form for you.
+                </p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    id="autofill_url"
+                    type="url"
+                    value={autofillUrl}
+                    onChange={(e) => setAutofillUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        void handleAutofill();
+                      }
+                    }}
+                    placeholder="https://yourapp.com"
+                    aria-label="Your product URL"
+                    className="flex-1"
+                  />
+                  <Button type="button" onClick={handleAutofill} disabled={autofilling} className="gap-2 sm:w-auto">
+                    {autofilling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    {autofilling ? 'Analysing…' : 'Autofill'}
+                  </Button>
+                </div>
+                {autofillError && <p className="mt-2 text-xs text-destructive">{autofillError}</p>}
+                {autofillNote && !autofillError && (
+                  <p className="mt-2 text-xs text-muted-foreground">{autofillNote}</p>
+                )}
+              </div>
+
               <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
+
                 <Field id="app_name" label="App name" error={errors.app_name}>
                   <Input id="app_name" value={form.app_name} onChange={set('app_name')} maxLength={FIELD_LIMITS.app_name} placeholder="Acme AI" />
                 </Field>
