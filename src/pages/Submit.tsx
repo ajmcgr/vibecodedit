@@ -234,21 +234,30 @@ const Submit = () => {
                   Submit Your App
                 </Button>
 
-                <div className="rounded-xl border border-border bg-muted/30 p-5 sm:p-6">
-                  <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Ready for the full launch experience?</p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        List on Launch to get upvotes, feedback, a founder profile, and rankings.
+                <div className="rounded-xl border border-border bg-card p-6">
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-2">
+                      <h3 className="text-base font-semibold text-foreground">Ready for the full launch experience?</h3>
+                      <p className="text-sm text-muted-foreground">
+                        List on Launch to get upvotes, founder feedback, a public profile, and rankings in front of the world’s largest vibe coding community.
                       </p>
+                      <ul className="hidden text-sm text-muted-foreground sm:block">
+                        <li className="flex items-center gap-2">
+                          <span className="text-primary">✓</span> Appear on Launch rankings and newsletters
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-primary">✓</span> Build a founder profile and collect reviews
+                        </li>
+                      </ul>
                     </div>
-                    <Button asChild size="lg" variant="default" className="w-full gap-2 sm:w-auto">
+                    <Button asChild size="lg" className="h-12 gap-2 px-6 text-base whitespace-nowrap">
                       <a href={launchSubmitUrl()} target="_blank" rel="noopener noreferrer">
-                        List it on Launch <ArrowRight className="h-4 w-4" />
+                        List it on Launch <ArrowRight className="h-5 w-5" />
                       </a>
                     </Button>
                   </div>
                 </div>
+
 
               </form>
             </>
