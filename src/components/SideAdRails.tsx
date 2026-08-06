@@ -72,9 +72,15 @@ const AdTile = ({ item, placement }: { item: RailAd; placement: string }) => {
       {inner}
     </a>
   ) : (
-    <Link to={item.href} onClick={() => trackAdClick(item, placement)} className={cls}>
+    <a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => trackAdClick(item, placement)}
+      className={cls}
+    >
       {inner}
-    </Link>
+    </a>
   );
 };
 
@@ -168,9 +174,15 @@ const MarqueePill = ({ item, placement }: { item: RailAd; placement: string }) =
       {inner}
     </a>
   ) : (
-    <Link to={item.href} onClick={() => trackAdClick(item, placement)} className={cls}>
+    <a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => trackAdClick(item, placement)}
+      className={cls}
+    >
       {inner}
-    </Link>
+    </a>
   );
 };
 
