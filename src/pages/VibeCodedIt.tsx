@@ -18,7 +18,7 @@ import vibeLogoDark from '@/assets/vibecodedit-logo-dark.png.asset.json';
 import alexPhoto from '@/assets/alex-vcyf.png';
 import signature from '@/assets/signature.png';
 import signatureDark from '@/assets/am-t.png';
-import { isCampaignHost, CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
+import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 import { useLaunchedProductCount } from '@/hooks/use-campaign-products';
 import { BuilderWall } from '@/components/campaign/BuilderWall';
 import { ViewToggle } from '@/components/ViewToggle';
@@ -62,8 +62,8 @@ const VibeCodedIt = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
-  // Same component, two homes: canonical/OG follow the hostname it was served from.
-  const pageUrl = isCampaignHost() ? CAMPAIGN_ORIGIN : 'https://trylaunch.ai/vibecodedit';
+  // Standalone site: canonical/OG always point at the campaign domain.
+  const pageUrl = CAMPAIGN_ORIGIN;
 
   const welcomeSlug = searchParams.get('welcome');
   const [showWelcome, setShowWelcome] = useState(!!welcomeSlug);
@@ -130,9 +130,7 @@ const VibeCodedIt = () => {
   const handleAddYourApp = () => {
     setCampaignIntent(CAMPAIGN_SLUG);
     trackCampaignEvent('campaign_cta_clicked');
-    const url = isCampaignHost()
-      ? `https://trylaunch.ai/submit?campaign=${CAMPAIGN_SLUG}`
-      : `/submit?campaign=${CAMPAIGN_SLUG}`;
+    const url = `https://trylaunch.ai/submit?campaign=${CAMPAIGN_SLUG}&source=vibecodedit`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
