@@ -82,6 +82,69 @@ const Submit = () => {
 
   const accept = useMemo(() => ACCEPTED_IMAGE_TYPES.join(','), []);
 
+  /** Turns a data URL returned by the enrich function into a File for upload. */
+  const dataUrlToFile = async (dataUrl: string, name: string) => {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    if (!ACCEPTED_IMAGE_TYPES.includes(blob.type)) return null;
+    const ext = blob.type.split('/')[1]?.replace('jpeg', 'jpg') || 'png';
+    return new File([blob], `${name}.${ext}`, { type: blob.type });
+  };
+
+  const handleAutofill = async () => {
+    const url = autofillUrl.trim();
+    if (!url) {
+      setAutofillError('Paste your product URL first.');
+      return;
+    }
+    setAutofilling(true);
+    setAutofillError(null);
+    setAutofillNote(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('enrich-product', {
+        body: { url, categories },
+      });
+      const payload = data as any;
+      if (error || payload?.error) {
+        setAutofillError(payload?.error || 'AI autofill failed. Please fill the form manually.');
+        return;
+      }
+
+      setForm((f) => ({
+        ...f,
+        app_name: payload.app_name || f.app_name,
+        website_url: payload.website_url || url,
+        description: payload.description || f.description,
+        category: payload.category || f.category,
+      }));
+
+      const filled: string[] = ['details'];
+      if (payload.screenshot?.dataUrl) {
+        const file = await dataUrlToFile(payload.screenshot.dataUrl, 'screenshot');
+        if (file) {
+          setScreenshot(file);
+          filled.push('screenshot');
+        }
+      }
+      if (payload.logo?.dataUrl) {
+        const file = await dataUrlToFile(payload.logo.dataUrl, 'logo');
+        if (file) {
+          setLogo(file);
+          filled.push('logo');
+        }
+      }
+
+      setErrors({});
+      setAutofillNote(`Filled in your ${filled.join(', ')}. Review and edit anything before submitting.`);
+    } catch (err: any) {
+      setAutofillError(err?.message || 'AI autofill failed. Please fill the form manually.');
+    } finally {
+      setAutofilling(false);
+    }
+  };
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const found = validateSubmission(form, { screenshot, logo }, consent);
