@@ -204,7 +204,6 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
               {product.category}
             </span>
           )}
-          {product.isCampaign && <VibeCodeBadge size="sm" />}
         </div>
         <div
           className="flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/card:opacity-100 [@media(hover:none)]:opacity-100"
