@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, LayoutPanelLeft, DollarSign, Settings } from 'lucide-react';
-import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 
 const itemBase =
   'flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground';
