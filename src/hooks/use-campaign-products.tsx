@@ -12,6 +12,10 @@ export interface BuilderWallProduct {
   category?: string;
   founder?: string;
   isCampaign: boolean;
+  /** Direct destination — set for Vibe Coded It submissions without a Launch listing. */
+  url?: string;
+  /** True for tiles created through vibecodedit.com/submit. */
+  isSubmission?: boolean;
 }
 
 const PRODUCT_SELECT = `
