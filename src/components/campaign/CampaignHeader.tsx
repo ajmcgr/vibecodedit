@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import vibeLogo from '@/assets/vibecodedit-logo-6.png.asset.json';
-import vibeLogoDark from '@/assets/vibecodedit-logo-dark-6.png.asset.json';
+import vibeLogo from '@/assets/vibecodedit-logo-7.png.asset.json';
+import vibeLogoDark from '@/assets/vibecodedit-logo-dark-7.png.asset.json';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { trackCampaignEvent } from '@/lib/campaign';
