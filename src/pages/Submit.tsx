@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, Loader2, Rocket } from 'lucide-react';
+import { ArrowRight, Loader2, Rocket, Sparkles } from 'lucide-react';
+
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,8 +60,13 @@ const Submit = () => {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<SubmissionInput | null>(null);
   const [categories, setCategories] = useState<string[]>(FALLBACK_CATEGORIES);
+  const [autofillUrl, setAutofillUrl] = useState('');
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillError, setAutofillError] = useState<string | null>(null);
+  const [autofillNote, setAutofillNote] = useState<string | null>(null);
 
   const pageUrl = `${CAMPAIGN_ORIGIN}/submit`;
+
 
   useEffect(() => {
     (async () => {
