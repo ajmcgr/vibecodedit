@@ -190,3 +190,18 @@ body {
     top: calc(54px + env(safe-area-inset-top));
   }
 }
+
+/* Horizontal ad marquee (mobile header/footer bars) */
+@keyframes ad-marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.ad-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: ad-marquee-x 40s linear infinite;
+}
+.ad-marquee-track.is-reverse { animation-direction: reverse; }
+@media (prefers-reduced-motion: reduce) {
+  .ad-marquee-track { animation: none; }
+}
