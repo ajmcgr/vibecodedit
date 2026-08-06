@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, LayoutPanelLeft, DollarSign, Settings } from 'lucide-react';
-import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 
 const itemBase =
   'flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground';
@@ -28,7 +27,7 @@ export const CampaignSideNav = () => {
         className="fixed left-0 top-0 bottom-0 z-50 hidden w-16 flex-col items-center justify-between border-r border-border bg-background py-4 lg:flex"
       >
         <div className="flex flex-col items-center gap-2">
-          <a href={CAMPAIGN_ORIGIN} aria-label="Home" title="Home" className={itemBase}>
+          <a href="/" aria-label="Home" title="Home" className={itemBase}>
             <Home className="h-5 w-5" />
           </a>
           <Link
@@ -76,7 +75,7 @@ export const CampaignSideNav = () => {
         aria-label="Vibe Coded It navigation"
         className="fixed inset-x-0 bottom-[calc(53px+env(safe-area-inset-bottom))] z-50 flex border-t border-border bg-background lg:hidden"
       >
-        <a href={CAMPAIGN_ORIGIN} aria-label="Home" className={mobileItem}>
+        <a href="/" aria-label="Home" className={mobileItem}>
           <Home className="h-5 w-5" />
           Home
         </a>
