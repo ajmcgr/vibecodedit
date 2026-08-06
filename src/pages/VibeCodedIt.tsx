@@ -66,6 +66,14 @@ const VibeCodedIt = () => {
   // Standalone site: canonical/OG always point at the campaign domain.
   const pageUrl = CAMPAIGN_ORIGIN;
 
+  const searchTerm = (searchParams.get('q') ?? '').trim();
+
+  const clearSearch = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('q');
+    setSearchParams(next, { replace: true });
+  };
+
   const welcomeSlug = searchParams.get('welcome');
   const [showWelcome, setShowWelcome] = useState(!!welcomeSlug);
   const [wallView, setWallView] = useState<'list' | 'grid' | 'compact' | 'semi-compact'>(() => {
@@ -202,8 +210,8 @@ const VibeCodedIt = () => {
       <CampaignSideNav />
 
       {/* Hero */}
-      {showHero && !user && (
-        <section className="relative pt-8 sm:pt-10 lg:pl-20 min-[1700px]:pr-[200px]">
+      {showHero && !user && !searchTerm && (
+        <section className="relative pt-8 sm:pt-10 lg:pl-20">
           <div className="w-full px-4">
             <div className="relative w-full px-6 py-8 sm:py-10 text-center bg-[#fcfcfc] dark:bg-card dark:border dark:border-border rounded-2xl">
             <h1 className="mx-auto max-w-xl text-5xl sm:text-6xl font-semibold tracking-tight text-foreground">
@@ -237,14 +245,26 @@ const VibeCodedIt = () => {
 
 
       {/* Apps title + app count + view toggle */}
-      <section className="lg:pl-20 min-[1700px]:pr-[200px]">
+      <section id="apps" className="lg:pl-20 scroll-mt-20">
         <div className="w-full px-4 pt-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Apps</h1>
+              <h1 className="text-2xl font-bold tracking-tight">
+                {searchTerm ? <>Results for &ldquo;{searchTerm}&rdquo;</> : 'Apps'}
+              </h1>
               <p className="mt-2 text-sm text-muted-foreground leading-5">
-                {rawCount > 0 && (
-                  <>Over <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
+                {searchTerm ? (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Clear search
+                  </button>
+                ) : (
+                  rawCount > 0 && (
+                    <>Over <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
+                  )
                 )}
               </p>
             </div>
@@ -259,9 +279,9 @@ const VibeCodedIt = () => {
 
 
       {/* Builder Wall */}
-      <section className="lg:pl-20 min-[1700px]:pr-[200px]">
+      <section className="lg:pl-20">
         <div className="w-full px-4 pb-8 pt-4 sm:pb-8 sm:pt-6">
-          <BuilderWall view={wallView} />
+          <BuilderWall view={wallView} query={searchTerm} />
         </div>
       </section>
 

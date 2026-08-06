@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ExternalLink, Share2, ChevronDown } from 'lucide-react';
 import defaultProductIcon from '@/assets/default-product-icon.png';
 import { useCampaignProducts, type BuilderWallProduct } from '@/hooks/use-campaign-products';
@@ -240,7 +240,13 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
   );
 };
 
-export const BuilderWall = ({ view = 'grid' }: { view?: 'list' | 'grid' | 'compact' | 'semi-compact' }) => {
+export const BuilderWall = ({
+  view = 'grid',
+  query = '',
+}: {
+  view?: 'list' | 'grid' | 'compact' | 'semi-compact';
+  query?: string;
+}) => {
   const { data: products, isLoading } = useCampaignProducts(PRODUCTS_LIMIT);
   const [sharing, setSharing] = useState<BuilderWallProduct | null>(null);
   const [visibleRows, setVisibleRows] = useState(INITIAL_ROWS);
@@ -257,13 +263,30 @@ export const BuilderWall = ({ view = 'grid' }: { view?: 'list' | 'grid' | 'compa
   const tileSize: TileSize =
     view === 'compact' ? 'compact' : view === 'list' ? 'row' : view === 'semi-compact' ? 'semi-compact' : 'standard';
 
+  const term = query.trim().toLowerCase();
+  const matches = useMemo(() => {
+    const all = products || [];
+    if (!term) return all;
+    return all.filter((p) =>
+      [p.name, p.tagline, p.category, p.founder]
+        .filter(Boolean)
+        .some((field) => String(field).toLowerCase().includes(term))
+    );
+  }, [products, term]);
+
+  // Searching always starts from the first page of results.
+  useEffect(() => {
+    setVisibleRows(INITIAL_ROWS);
+  }, [term]);
+
   const visible = useMemo(
-    () => (products || []).slice(0, visibleRows * perRow),
-    [products, visibleRows, perRow]
+    () => matches.slice(0, visibleRows * perRow),
+    [matches, visibleRows, perRow]
   );
 
-  const maxRows = Math.max(INITIAL_ROWS, Math.ceil((products?.length || 0) / perRow));
-  const hasMore = visibleRows < maxRows && visibleRows * perRow < (products?.length || 0);
+  const maxRows = Math.max(INITIAL_ROWS, Math.ceil(matches.length / perRow));
+  const hasMore = visibleRows < maxRows && visibleRows * perRow < matches.length;
+
 
   const loadMore = () => {
     setVisibleRows((prev) => Math.min(prev + LOAD_MORE_ROWS, maxRows));
@@ -296,6 +319,17 @@ export const BuilderWall = ({ view = 'grid' }: { view?: 'list' | 'grid' | 'compa
   }
 
   if (!products || products.length === 0) return null;
+
+  if (term && matches.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-14 text-center">
+        <p className="text-base font-semibold text-foreground">No apps match “{query.trim()}”</p>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+          Try a different name, founder or category — or add your own app to the wall.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>

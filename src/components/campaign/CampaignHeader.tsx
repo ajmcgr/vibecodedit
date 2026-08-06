@@ -1,33 +1,48 @@
 import { useEffect, useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import vibeLogo from '@/assets/vibecodedit-logo-6.png.asset.json';
 import vibeLogoDark from '@/assets/vibecodedit-logo-dark-6.png.asset.json';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { trackCampaignEvent } from '@/lib/campaign';
 
-/** Shared campaign header: logo, full-width search, theme toggle, auth. */
+/** Shared campaign header: logo, full-width on-site search, theme toggle, submit CTA. */
 export const CampaignHeader = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  const urlQuery = pathname === '/' ? searchParams.get('q') ?? '' : '';
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
 
+  // Keep the input in sync when the URL changes (back button, cleared search).
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-    });
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
-    return () => subscription.unsubscribe();
-  }, []);
+    setSearchQuery(urlQuery);
+  }, [urlQuery]);
 
+  // Debounced on-site search: filters the app wall on the home page.
+  useEffect(() => {
+    const value = searchQuery.trim();
+    if (value === urlQuery.trim()) return;
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const timer = window.setTimeout(() => {
+      if (value) {
+        trackCampaignEvent('campaign_search_submitted');
+        navigate(`/?q=${encodeURIComponent(value)}`, { replace: pathname === '/' });
+      } else if (pathname === '/') {
+        navigate('/', { replace: true });
+      }
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [searchQuery, urlQuery, pathname, navigate]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
-      trackCampaignEvent('campaign_search_submitted');
-      window.open(`https://trylaunch.ai/search?q=${encodeURIComponent(searchQuery.trim())}&source=vibecodedit`, '_blank', 'noopener,noreferrer');
-      setSearchQuery('');
+      navigate(`/?q=${encodeURIComponent(searchQuery.trim())}`);
+      document.getElementById('apps')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    if (e.key === 'Escape') setSearchQuery('');
   };
 
   return (
@@ -42,43 +57,33 @@ export const CampaignHeader = () => {
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
-              type="search"
-              placeholder="Search launches, founders, categories..."
+              type="text"
+              aria-label="Search apps"
+              placeholder="Search apps, founders, categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearch}
-              className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+              onKeyDown={handleKeyDown}
+              className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-10 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
 
         <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          {user ? (
-            <Button asChild variant="ghost" size="sm">
-              <a href="https://trylaunch.ai/settings" target="_blank" rel="noopener noreferrer">
-                Account
-              </a>
-            </Button>
-          ) : (
-            <>
-              <a
-                href="https://trylaunch.ai/auth"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:inline"
-              >
-                Login
-              </a>
-              <Button asChild size="sm">
-                <a href="https://trylaunch.ai/auth" target="_blank" rel="noopener noreferrer">
-                  Sign Up
-                </a>
-              </Button>
-            </>
-          )}
+          <Button asChild size="sm">
+            <a href="/submit">Submit</a>
+          </Button>
         </div>
-
       </div>
     </header>
   );
