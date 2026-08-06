@@ -126,23 +126,21 @@ export default function CollectionsPreview({ limit = 6, onCount, openInNewWindow
 
   const wrapperClass = "group flex flex-col rounded-xl overflow-hidden border bg-card hover:shadow-md transition-all";
 
-  const CardWrapper = openInNewWindow
-    ? ({ c, children }: { c: CollectionCard; children: ReactNode }) => (
-        <a
-          key={c.id}
-          href={`/c/${c.slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={wrapperClass}
-        >
-          {children}
-        </a>
-      )
-    : ({ c, children }: { c: CollectionCard; children: ReactNode }) => (
-        <Link key={c.id} to={`/c/${c.slug}`} className={wrapperClass}>
-          {children}
-        </Link>
-      );
+  // Collections live on Launch — always link out to trylaunch.ai.
+  const collectionUrl = (slug: string) =>
+    `https://trylaunch.ai/c/${slug}?source=vibecodedit`;
+
+  const CardWrapper = ({ c, children }: { c: CollectionCard; children: ReactNode }) => (
+    <a
+      key={c.id}
+      href={collectionUrl(c.slug)}
+      target={openInNewWindow ? '_blank' : undefined}
+      rel="noopener noreferrer"
+      className={wrapperClass}
+    >
+      {children}
+    </a>
+  );
 
   const shown = showMore ? items.slice(0, visible) : items;
 
