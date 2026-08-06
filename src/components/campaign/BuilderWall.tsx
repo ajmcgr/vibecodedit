@@ -4,7 +4,6 @@ import { ExternalLink, Share2, ChevronDown } from 'lucide-react';
 import defaultProductIcon from '@/assets/default-product-icon.png';
 import { useCampaignProducts, type BuilderWallProduct } from '@/hooks/use-campaign-products';
 import { trackCampaignEvent } from '@/lib/campaign';
-import { VibeCodeBadge } from '@/components/campaign/VibeCodeBadge';
 import { CampaignShareModal } from '@/components/campaign/CampaignShareModal';
 import { Button } from '@/components/ui/button';
 
@@ -100,7 +99,6 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h3 className="truncate text-base font-semibold leading-tight">{product.name}</h3>
-            {product.isCampaign && <VibeCodeBadge size="sm" />}
           </div>
           {!dense && product.tagline && (
             <p className="truncate text-sm text-muted-foreground">{product.tagline}</p>
@@ -206,7 +204,6 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
               {product.category}
             </span>
           )}
-          {product.isCampaign && <VibeCodeBadge size="sm" />}
         </div>
         <div
           className="flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/card:opacity-100 [@media(hover:none)]:opacity-100"

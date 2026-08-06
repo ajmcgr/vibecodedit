@@ -132,8 +132,11 @@ const Submit = () => {
               <p className="mt-3 text-muted-foreground">
                 Want more founders to discover your startup?
               </p>
-              <div className="mt-6 flex flex-col items-center gap-3">
-                <Button asChild size="lg" className="gap-2">
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Button asChild size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
+                  <a href="/">View your listing</a>
+                </Button>
+                <Button asChild size="lg" className="w-full gap-2 sm:w-auto">
                   <a
                     href={launchSubmitUrl(done)}
                     target="_blank"
@@ -142,9 +145,6 @@ const Submit = () => {
                     List it on Launch <ArrowRight className="h-4 w-4" />
                   </a>
                 </Button>
-                <a href="/" className="text-sm text-muted-foreground hover:text-primary">
-                  See it on the wall
-                </a>
               </div>
             </div>
           ) : (
