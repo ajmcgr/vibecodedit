@@ -296,19 +296,16 @@ const VibeCodedIt = () => {
             <h2 className="mb-8 text-center font-reckless text-3xl sm:text-4xl">An Open Letter</h2>
 
             <div className="space-y-5 text-lg leading-8 text-foreground/90">
-              <p className="text-center text-base text-muted-foreground">
-                An open letter to anyone who was just laid off, left their job, or simply decided to build, launch your vibe coded startup and join a growing community of founders creating the next generation of software.
-              </p>
-
               <p>
                 <strong>Hey,</strong>
               </p>
 
               <p>
-                If you're reading this, there's a good chance you just lost your job. Maybe it was a
-                Slack message. Maybe a calendar invite with no title. Maybe an email at 6am. However
-                it happened, I'm sorry. It hurts, and it's okay that it hurts.
+                An open letter to anyone who was just laid off, left their job, or simply decided to
+                build, launch your vibe coded startup and join a growing community of founders creating
+                the next generation of software.
               </p>
+
 
               <p>
                 I'm not going to tell you that "everything happens for a reason" or that you should be
