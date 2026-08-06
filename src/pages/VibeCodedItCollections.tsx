@@ -5,10 +5,10 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
-import { promptSubmitChoice } from '@/lib/submitPrompt';
 import CollectionsPreview from '@/components/CollectionsPreview';
 import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 import { CAMPAIGN_SLUG, setCampaignIntent, trackCampaignEvent } from '@/lib/campaign';
+
 
 const VibeCodedItCollections = () => {
   const navigate = useNavigate();
@@ -16,8 +16,10 @@ const VibeCodedItCollections = () => {
   const pageUrl = `${CAMPAIGN_ORIGIN}/collections`;
 
   const handleAddYourApp = () => {
-    promptSubmitChoice(() => navigate('/submit'));
+    trackCampaignEvent('campaign_cta_clicked');
+    navigate('/submit');
   };
+
 
   return (
     <>
