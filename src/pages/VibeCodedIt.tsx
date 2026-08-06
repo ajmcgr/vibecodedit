@@ -301,9 +301,7 @@ const VibeCodedIt = () => {
               </p>
 
               <p>
-                An open letter to anyone who was just laid off, left their job, or simply decided to
-                build, launch your vibe coded startup and join a growing community of founders creating
-                the next generation of software.
+                I've written this open letter to anyone who was just been laid off, left their job, or simply decided to build your own vibe coded startup.
               </p>
 
 
