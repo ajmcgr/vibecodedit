@@ -1,3 +1,4 @@
+import { AdRow } from '@/components/campaign/AdRail';
 import { useEffect, useMemo, useState } from 'react';
 import { ExternalLink, Share2, ChevronDown } from 'lucide-react';
 import defaultProductIcon from '@/assets/default-product-icon.png';
