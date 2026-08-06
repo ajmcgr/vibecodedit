@@ -30,7 +30,7 @@ const useSponsorSlots = () =>
         .lte('start_date', today)
         .gte('end_date', today)
         .order('position', { ascending: true })
-        .limit(4);
+        .limit(6);
 
       const ids = ((slots as any[]) || []).map((s) => s.product_id).filter(Boolean);
       if (!ids.length) return [];
@@ -269,12 +269,15 @@ export const AdBanner = ({ className = '' }: { className?: string }) => {
 export const AdRow = ({
   startIndex = 0,
   view = 'grid',
+  perRow,
 }: {
   startIndex?: number;
   view?: AdView;
+  perRow?: number;
 }) => {
   const { data: slots = [] } = useSponsorSlots();
-  const count = view === 'list' || view === 'compact' ? 2 : view === 'semi-compact' ? 2 : 4;
+  const rowCapacity = perRow ?? (view === 'grid' ? 4 : view === 'semi-compact' ? 4 : 8);
+  const count = Math.min(6, rowCapacity);
   const rowSlots = slots.slice(startIndex, startIndex + count);
   const placeholders = Math.max(0, count - rowSlots.length);
 
