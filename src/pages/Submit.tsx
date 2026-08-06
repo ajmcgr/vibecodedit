@@ -18,6 +18,7 @@ import {
   createSubmission,
   findDuplicate,
   launchSubmitUrl,
+  sendSubmissionEmail,
   validateSubmission,
   type FieldErrors,
   type SubmissionInput,
