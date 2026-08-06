@@ -36,7 +36,7 @@ const AppContent = () => {
   const isSubmit = location.pathname === '/submit';
 
   return (
-    <div className="flex flex-col min-h-screen min-[1500px]:pr-[220px]">
+    <div className="flex flex-col min-h-screen">
       <AdRail />
       <main className="flex-1">
 

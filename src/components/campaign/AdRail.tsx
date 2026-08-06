@@ -173,31 +173,32 @@ export const AdBanner = ({ className = '' }: { className?: string }) => {
   );
 };
 
-/** Fixed right-hand sponsor rail on wide screens. */
-const AdRail = () => {
+/** Full-width horizontal ad row, interleaved into the product wall. */
+export const AdRow = ({ startIndex = 0 }: { startIndex?: number }) => {
   const { data: slots = [] } = useSponsorSlots();
+  const rowSlots = slots.slice(startIndex, startIndex + 4);
+  const placeholders = Math.max(0, 4 - rowSlots.length);
 
   return (
-    <>
-    <div className="fixed inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] z-40 border-y border-border/60 bg-background/95 px-4 py-2 backdrop-blur lg:hidden">
-      <AdBanner />
-    </div>
-    <aside
-      aria-label="Sponsored"
-      className="fixed right-0 top-16 bottom-0 hidden w-[220px] overflow-y-auto border-l border-border/60 px-4 py-5 min-[1500px]:block"
-    >
+    <div className="w-full">
       <p className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">AD</p>
-      <div className="space-y-3">
-        {slots.map((slot) => (
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {rowSlots.map((slot) => (
           <SponsorCard key={slot.id} slot={slot} />
         ))}
-        {Array.from({ length: Math.max(0, 5 - slots.length) }).map((_, i) => (
-          <AdPlaceholder key={`ad-placeholder-${i}`} />
+        {Array.from({ length: placeholders }).map((_, i) => (
+          <AdPlaceholder key={`ad-placeholder-${startIndex}-${i}`} />
         ))}
       </div>
-    </aside>
-    </>
+    </div>
   );
 };
+
+/** Slim fixed sponsor banner on mobile. */
+const AdRail = () => (
+  <div className="fixed inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] z-40 border-y border-border/60 bg-background/95 px-4 py-2 backdrop-blur lg:hidden">
+    <AdBanner />
+  </div>
+);
 
 export default AdRail;
