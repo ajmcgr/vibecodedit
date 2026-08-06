@@ -137,8 +137,10 @@ const VibeCodedIt = () => {
 
 
   const handleAddYourApp = () => {
-    promptSubmitChoice(() => navigate('/submit'));
+    trackCampaignEvent('campaign_cta_clicked');
+    navigate('/submit');
   };
+
 
   const closeWelcome = () => {
     setShowWelcome(false);

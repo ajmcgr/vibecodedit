@@ -16,8 +16,10 @@ const VibeCodedItCollections = () => {
   const pageUrl = `${CAMPAIGN_ORIGIN}/collections`;
 
   const handleAddYourApp = () => {
-    promptSubmitChoice(() => navigate('/submit'));
+    trackCampaignEvent('campaign_cta_clicked');
+    navigate('/submit');
   };
+
 
   return (
     <>
