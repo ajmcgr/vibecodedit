@@ -69,7 +69,7 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
 
   const open = () => {
     trackCampaignEvent('builder_wall_card_clicked', product.id);
-    window.open(`/launch/${product.slug}`, '_blank', 'noopener,noreferrer');
+    window.open(`https://trylaunch.ai/launch/${product.slug}?source=vibecodedit`, '_blank', 'noopener,noreferrer');
   };
 
   if (size === 'row' || size === 'compact') {
@@ -110,7 +110,7 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           onClick={(e) => e.stopPropagation()}
         >
           <a
-            href={`/launch/${product.slug}`}
+            href={`https://trylaunch.ai/launch/${product.slug}?source=vibecodedit`}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open ${product.name} in new window`}
@@ -169,7 +169,7 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           onClick={(e) => e.stopPropagation()}
         >
           <a
-            href={`/launch/${product.slug}`}
+            href={`https://trylaunch.ai/launch/${product.slug}?source=vibecodedit`}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open ${product.name} in new window`}

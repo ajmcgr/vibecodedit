@@ -467,7 +467,7 @@ const VibeCodedIt = () => {
           </p>
           <div className="mt-2 flex flex-col gap-2">
             <Button asChild size="lg">
-              <Link to={`/launch/${welcomeSlug}`}>View my Launch page</Link>
+              <a href={`https://trylaunch.ai/launch/${welcomeSlug}?source=vibecodedit`} target="_blank" rel="noopener noreferrer">View my Launch page</a>
             </Button>
             <Button variant="outline" size="lg" onClick={closeWelcome}>
               See the Builder Wall
