@@ -24,13 +24,13 @@ import { BuilderWall } from '@/components/campaign/BuilderWall';
 import { ViewToggle } from '@/components/ViewToggle';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
-import { promptSubmitChoice } from '@/lib/submitPrompt';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   CAMPAIGN_SLUG,
   setCampaignIntent,
   trackCampaignEvent,
 } from '@/lib/campaign';
+
 
 const buildFaqs = (appCount: string) => [
   {
