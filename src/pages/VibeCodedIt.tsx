@@ -224,7 +224,7 @@ const VibeCodedIt = () => {
               Vibe Coded___?
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-lg sm:text-xl text-muted-foreground">
-              Launch your vibe coded startup and join a growing community of founders.
+              Launch your vibe coded startup in under a minute for free and join our growing community of founders.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
               <Button className="gap-2" onClick={handleAddYourApp}>
