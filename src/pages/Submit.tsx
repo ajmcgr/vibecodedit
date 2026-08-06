@@ -304,7 +304,12 @@ const Submit = () => {
                   <Input id="founder_username" value={form.founder_username} onChange={set('founder_username')} maxLength={FIELD_LIMITS.founder_username} placeholder="yourhandle" />
                 </Field>
 
-                <Field id="screenshot" label="Screenshot" error={errors.screenshot} hint="PNG, JPG, WEBP or GIF. Max 5MB.">
+                <Field
+                  id="screenshot"
+                  label="Screenshot"
+                  error={errors.screenshot}
+                  hint={screenshot ? `Selected: ${screenshot.name}` : 'PNG, JPG, WEBP or GIF. Max 5MB.'}
+                >
                   <Input
                     id="screenshot"
                     type="file"
@@ -314,7 +319,12 @@ const Submit = () => {
                   />
                 </Field>
 
-                <Field id="logo" label="Logo (optional)" error={errors.logo} hint="Square works best. Max 5MB.">
+                <Field
+                  id="logo"
+                  label="Logo (optional)"
+                  error={errors.logo}
+                  hint={logo ? `Selected: ${logo.name}` : 'Square works best. Max 5MB.'}
+                >
                   <Input
                     id="logo"
                     type="file"
@@ -323,6 +333,7 @@ const Submit = () => {
                     className="cursor-pointer file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-muted file:px-2 file:py-1 file:text-xs"
                   />
                 </Field>
+
 
                 <div className="flex items-start gap-3 rounded-lg bg-muted/30 p-4">
                   <Checkbox
