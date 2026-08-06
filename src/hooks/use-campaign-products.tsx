@@ -180,11 +180,18 @@ export const useLaunchedProductCount = () =>
   useQuery({
     queryKey: ['launched-product-count'],
     queryFn: async (): Promise<number> => {
-      const { count } = await supabase
-        .from('products')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'launched');
-      return count || 0;
+      const [productsRes, submissionsRes] = await Promise.all([
+        supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'launched'),
+        (supabase as any)
+          .from('vibecodedit_submissions_public')
+          .select('id', { count: 'exact', head: true })
+          .then((r: any) => r)
+          .catch(() => ({ count: 0 })),
+      ]);
+      return (productsRes.count || 0) + ((submissionsRes as any)?.count || 0);
     },
     staleTime: 30 * 60 * 1000,
   });
