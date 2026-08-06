@@ -32,7 +32,6 @@ const ScrollToTop = () => {
 const AppContent = () => {
   const location = useLocation();
   const isCampaignCollections = location.pathname === '/collections';
-  const isCampaignPage = location.pathname === '/' || isCampaignCollections;
 
   return (
     <div className="flex flex-col min-h-screen">
