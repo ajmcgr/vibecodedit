@@ -79,7 +79,7 @@ const AdTile = ({ item, placement }: { item: RailAd; placement: string }) => {
 };
 
 const PlaceholderTile = () => (
-  <Link
+  <a
     href="https://trylaunch.ai/advertise?source=vibecodedit"
     target="_blank"
     rel="noopener noreferrer"
@@ -199,11 +199,11 @@ const MarqueeRow = ({
           item ? (
             <MarqueePill key={`${item.key}-${i}`} item={item} placement={placement} />
           ) : (
-            <Link
+            <a
               key={`ph-${i}`}
               href="https://trylaunch.ai/advertise?source=vibecodedit"
-    target="_blank"
-    rel="noopener noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-muted/10 px-3 py-2 shrink-0"
             >
               <span className="h-6 w-6 rounded-md bg-muted/30 flex items-center justify-center text-sm text-muted-foreground">
