@@ -234,12 +234,22 @@ const Submit = () => {
                   Submit Your App
                 </Button>
 
-                <p className="text-center text-xs text-muted-foreground">
-                  Want the full launch experience?{' '}
-                  <a href={launchSubmitUrl()} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
-                    List it on Launch
-                  </a>
-                </p>
+                <div className="rounded-xl border border-border bg-muted/30 p-5 sm:p-6">
+                  <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Ready for the full launch experience?</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        List on Launch to get upvotes, feedback, a founder profile, and rankings.
+                      </p>
+                    </div>
+                    <Button asChild size="lg" variant="default" className="w-full gap-2 sm:w-auto">
+                      <a href={launchSubmitUrl()} target="_blank" rel="noopener noreferrer">
+                        List it on Launch <ArrowRight className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+
               </form>
             </>
           )}
