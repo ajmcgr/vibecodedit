@@ -266,25 +266,42 @@ export const AdBanner = ({ className = '' }: { className?: string }) => {
 };
 
 /** Full-width horizontal ad row, interleaved into the product wall. */
-export const AdRow = ({ startIndex = 0 }: { startIndex?: number }) => {
+export const AdRow = ({
+  startIndex = 0,
+  view = 'grid',
+}: {
+  startIndex?: number;
+  view?: AdView;
+}) => {
   const { data: slots = [] } = useSponsorSlots();
-  const rowSlots = slots.slice(startIndex, startIndex + 4);
-  const placeholders = Math.max(0, 4 - rowSlots.length);
+  const count = view === 'list' || view === 'compact' ? 2 : view === 'semi-compact' ? 2 : 4;
+  const rowSlots = slots.slice(startIndex, startIndex + count);
+  const placeholders = Math.max(0, count - rowSlots.length);
+
+  const gridClass =
+    view === 'grid'
+      ? 'grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+      : view === 'semi-compact'
+        ? 'grid grid-cols-1 sm:grid-cols-2 gap-3'
+        : view === 'list'
+          ? 'flex flex-col gap-3'
+          : 'flex flex-col gap-2';
 
   return (
     <div className="w-full">
       <p className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">AD</p>
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className={gridClass}>
         {rowSlots.map((slot) => (
-          <SponsorCard key={slot.id} slot={slot} />
+          <SponsorCard key={slot.id} slot={slot} view={view} />
         ))}
         {Array.from({ length: placeholders }).map((_, i) => (
-          <AdPlaceholder key={`ad-placeholder-${startIndex}-${i}`} />
+          <AdPlaceholder key={`ad-placeholder-${startIndex}-${i}`} view={view} />
         ))}
       </div>
     </div>
   );
 };
+
 
 /** Slim fixed sponsor banner on mobile. */
 const AdRail = () => (
