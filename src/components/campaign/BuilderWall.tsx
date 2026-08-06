@@ -67,9 +67,14 @@ interface BuilderCardProps {
 const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
   const styles = TileSizeClasses[size];
 
+  // Submissions without a Launch listing link straight to their website.
+  const href = product.slug
+    ? `https://trylaunch.ai/launch/${product.slug}?source=vibecodedit`
+    : product.url || '#';
+
   const open = () => {
     trackCampaignEvent('builder_wall_card_clicked', product.id);
-    window.open(`https://trylaunch.ai/launch/${product.slug}?source=vibecodedit`, '_blank', 'noopener,noreferrer');
+    window.open(href, '_blank', 'noopener,noreferrer');
   };
 
   if (size === 'row' || size === 'compact') {
@@ -110,7 +115,7 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           onClick={(e) => e.stopPropagation()}
         >
           <a
-            href={`https://trylaunch.ai/launch/${product.slug}?source=vibecodedit`}
+            href={href}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open ${product.name} in new window`}
@@ -118,12 +123,12 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
-          <SaveToCollectionButton
+          {!product.isSubmission && <SaveToCollectionButton
             productId={product.id}
             productName={product.name}
             variant="bare"
             className="rounded-md p-1"
-          />
+          />}
           <button
             type="button"
             aria-label={`Share ${product.name}`}
@@ -169,7 +174,7 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           onClick={(e) => e.stopPropagation()}
         >
           <a
-            href={`https://trylaunch.ai/launch/${product.slug}?source=vibecodedit`}
+            href={href}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open ${product.name} in new window`}
@@ -212,12 +217,12 @@ const BuilderCard = ({ product, size, onShare }: BuilderCardProps) => {
           className="flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/card:opacity-100 [@media(hover:none)]:opacity-100"
           onClick={(e) => e.stopPropagation()}
         >
-          <SaveToCollectionButton
+          {!product.isSubmission && <SaveToCollectionButton
             productId={product.id}
             productName={product.name}
             variant="bare"
             className="rounded-md p-1"
-          />
+          />}
           <button
             type="button"
             aria-label={`Share ${product.name}`}
