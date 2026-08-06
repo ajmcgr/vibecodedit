@@ -31,18 +31,18 @@ export const CampaignSideNav = () => {
             <Home className="h-5 w-5" />
           </a>
           <Link
-            to="/vibecodedit"
+            to="/"
             aria-label="Explore"
             title="Explore"
-            className={`${itemBase} ${active('/vibecodedit')}`}
+            className={`${itemBase} ${active('/')}`}
           >
             <Compass className="h-5 w-5" />
           </Link>
           <Link
-            to="/vibecodedit/collections"
+            to="/collections"
             aria-label="Collections"
             title="Collections"
-            className={`${itemBase} ${active('/vibecodedit/collections')}`}
+            className={`${itemBase} ${active('/collections')}`}
           >
             <LayoutPanelLeft className="h-5 w-5" />
           </Link>
@@ -79,14 +79,14 @@ export const CampaignSideNav = () => {
           <Home className="h-5 w-5" />
           Home
         </a>
-        <Link to="/vibecodedit" aria-label="Explore" className={`${mobileItem} ${activeMobile('/vibecodedit')}`}>
+        <Link to="/" aria-label="Explore" className={`${mobileItem} ${activeMobile('/')}`}>
           <Compass className="h-5 w-5" />
           Explore
         </Link>
         <Link
-          to="/vibecodedit/collections"
+          to="/collections"
           aria-label="Collections"
-          className={`${mobileItem} ${activeMobile('/vibecodedit/collections')}`}
+          className={`${mobileItem} ${activeMobile('/collections')}`}
         >
           <LayoutPanelLeft className="h-5 w-5" />
           Collections

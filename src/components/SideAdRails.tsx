@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { weightedShuffle } from '@/lib/weightedPick';
 
@@ -72,15 +72,23 @@ const AdTile = ({ item, placement }: { item: RailAd; placement: string }) => {
       {inner}
     </a>
   ) : (
-    <Link to={item.href} onClick={() => trackAdClick(item, placement)} className={cls}>
+    <a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => trackAdClick(item, placement)}
+      className={cls}
+    >
       {inner}
-    </Link>
+    </a>
   );
 };
 
 const PlaceholderTile = () => (
-  <Link
-    to="/advertise"
+  <a
+    href="https://trylaunch.ai/advertise?source=vibecodedit"
+    target="_blank"
+    rel="noopener noreferrer"
     className="flex flex-col justify-center min-h-[132px] overflow-hidden rounded-xl border border-dashed border-border bg-muted/10 p-2.5 hover:border-foreground/25 hover:bg-muted/20 transition-all group"
   >
     <div className="h-10 w-full rounded-lg bg-muted/20 flex items-center justify-center mb-2 shrink-0">
@@ -94,7 +102,7 @@ const PlaceholderTile = () => (
     <p className="text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-3">
       Reach vibe coders launching every day.
     </p>
-  </Link>
+  </a>
 );
 
 const Rail = ({
@@ -166,9 +174,15 @@ const MarqueePill = ({ item, placement }: { item: RailAd; placement: string }) =
       {inner}
     </a>
   ) : (
-    <Link to={item.href} onClick={() => trackAdClick(item, placement)} className={cls}>
+    <a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => trackAdClick(item, placement)}
+      className={cls}
+    >
       {inner}
-    </Link>
+    </a>
   );
 };
 
@@ -197,9 +211,11 @@ const MarqueeRow = ({
           item ? (
             <MarqueePill key={`${item.key}-${i}`} item={item} placement={placement} />
           ) : (
-            <Link
+            <a
               key={`ph-${i}`}
-              to="/advertise"
+              href="https://trylaunch.ai/advertise?source=vibecodedit"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-muted/10 px-3 py-2 shrink-0"
             >
               <span className="h-6 w-6 rounded-md bg-muted/30 flex items-center justify-center text-sm text-muted-foreground">
@@ -208,7 +224,7 @@ const MarqueeRow = ({
               <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                 Your ad here
               </span>
-            </Link>
+            </a>
           )
         )}
       </div>
@@ -298,7 +314,7 @@ const SideAdRails = ({ isCampaignPage }: { isCampaignPage?: boolean }) => {
           return {
             key: s.id,
             adType: 'product',
-            href: `/launch/${p.slug}`,
+            href: `https://trylaunch.ai/launch/${p.slug}?source=vibecodedit`,
             external: false,
             name: p.name,
             tagline: p.tagline,
@@ -326,7 +342,7 @@ const SideAdRails = ({ isCampaignPage }: { isCampaignPage?: boolean }) => {
       ? Array.from({ length: ads.length }, (_, i) => ads[(i + offset) % ads.length])
       : [];
 
-  const showMobileMarquee = pathname === '/' || pathname.startsWith('/vibecodedit');
+  const showMobileMarquee = pathname === '/' || pathname === '/collections';
 
   if (isCampaignPage) {
     return (

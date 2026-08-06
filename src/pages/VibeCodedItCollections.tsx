@@ -6,22 +6,18 @@ import { Button } from '@/components/ui/button';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
 import CollectionsPreview from '@/components/CollectionsPreview';
-import { isCampaignHost, CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
+import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 import { CAMPAIGN_SLUG, setCampaignIntent, trackCampaignEvent } from '@/lib/campaign';
 
 const VibeCodedItCollections = () => {
   const navigate = useNavigate();
   const [collectionCount, setCollectionCount] = useState(0);
-  const pageUrl = isCampaignHost()
-    ? `${CAMPAIGN_ORIGIN}/collections`
-    : 'https://trylaunch.ai/vibecodedit/collections';
+  const pageUrl = `${CAMPAIGN_ORIGIN}/collections`;
 
   const handleAddYourApp = () => {
     setCampaignIntent(CAMPAIGN_SLUG);
     trackCampaignEvent('campaign_cta_clicked');
-    const url = isCampaignHost()
-      ? `https://trylaunch.ai/submit?campaign=${CAMPAIGN_SLUG}`
-      : `/submit?campaign=${CAMPAIGN_SLUG}`;
+    const url = `https://trylaunch.ai/submit?campaign=${CAMPAIGN_SLUG}&source=vibecodedit`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
