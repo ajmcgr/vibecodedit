@@ -5,3 +5,7 @@ verify_jwt = false
 
 [functions.send-submission-email]
 verify_jwt = false
+
+[functions.enrich-product]
+verify_jwt = false
+
