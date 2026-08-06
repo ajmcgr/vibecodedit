@@ -34,7 +34,7 @@ export const CampaignHeader = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
       <div className="flex h-14 md:h-16 w-full items-center gap-4 px-4 lg:pl-20">
-        <a href={CAMPAIGN_ORIGIN} aria-label="Vibe Coded It" className="flex flex-shrink-0 items-center">
+        <a href="/" aria-label="Vibe Coded It" className="flex flex-shrink-0 items-center">
           <img src={vibeLogo.url} alt="Vibe Coded It" width={200} height={40} className="h-9 md:h-10 w-auto object-contain dark:hidden" />
           <img src={vibeLogoDark.url} alt="Vibe Coded It" width={200} height={40} className="hidden h-9 md:h-10 w-auto object-contain dark:block" />
         </a>
