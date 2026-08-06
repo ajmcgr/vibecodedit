@@ -299,7 +299,7 @@ const VibeCodedIt = () => {
 
             <div className="space-y-5 text-lg leading-8 text-foreground/90">
               <p className="text-center text-base text-muted-foreground">
-                An open letter to anyone who was just laid off, left their job, or simply decided to build.
+                An open letter to anyone who was just laid off, left their job, or simply decided to build, launch your vibe coded startup and join a growing community of founders creating the next generation of software.
               </p>
 
               <p>
