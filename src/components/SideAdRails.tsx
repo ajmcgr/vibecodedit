@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { weightedShuffle } from '@/lib/weightedPick';
 
@@ -102,7 +102,7 @@ const PlaceholderTile = () => (
     <p className="text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-3">
       Reach vibe coders launching every day.
     </p>
-  </Link>
+  </a>
 );
 
 const Rail = ({
@@ -224,7 +224,7 @@ const MarqueeRow = ({
               <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                 Your ad here
               </span>
-            </Link>
+            </a>
           )
         )}
       </div>
