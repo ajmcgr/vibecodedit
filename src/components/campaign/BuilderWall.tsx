@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ExternalLink, Share2, ChevronDown } from 'lucide-react';
 import defaultProductIcon from '@/assets/default-product-icon.png';
 import { useCampaignProducts, type BuilderWallProduct } from '@/hooks/use-campaign-products';
@@ -319,6 +319,17 @@ export const BuilderWall = ({
   }
 
   if (!products || products.length === 0) return null;
+
+  if (term && matches.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-14 text-center">
+        <p className="text-base font-semibold text-foreground">No apps match “{query.trim()}”</p>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+          Try a different name, founder or category — or add your own app to the wall.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
