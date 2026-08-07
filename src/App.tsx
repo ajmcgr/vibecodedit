@@ -172,6 +172,9 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<VibeCodedIt />} />
             <Route path="/collections" element={<VibeCodedItCollections />} />
+            <Route path="/ideas" element={<Ideas />} />
+            <Route path="/ideas/:slug" element={<Ideas />} />
+
             <Route path="/submit" element={<Submit />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
