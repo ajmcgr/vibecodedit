@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 const SITE = 'https://vibecodedit.com';
-const LOGO = SITE + '/vibecodedit-logo.png';
+const LOGO = SITE + '/email-logo.png';
 const FROM = 'Alex at Vibe Coded It <alex@vibecodedit.com>';
 
 const esc = (v: unknown) =>
