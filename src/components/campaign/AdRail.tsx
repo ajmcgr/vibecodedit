@@ -214,7 +214,7 @@ const AdChip = ({ slot }: { slot: SponsorSlot }) => (
   <button
     type="button"
     onClick={() => open(slot.href, slot.id)}
-    className="flex shrink-0 items-center gap-2 rounded-full border border-border bg-card px-3.5 py-2 text-left"
+    className="flex shrink-0 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-left"
   >
     <img
       src={slot.iconUrl || defaultProductIcon}
@@ -234,7 +234,7 @@ const AdChipPlaceholder = () => (
     href={ADVERTISE_URL}
     target="_blank"
     rel="noopener noreferrer"
-    className="flex shrink-0 items-center gap-1.5 rounded-full border border-dashed border-border bg-background px-3.5 py-2"
+    className="flex shrink-0 items-center gap-1.5 rounded-xl border border-dashed border-border bg-background px-3.5 py-2"
   >
     <Plus className="h-4 w-4 text-muted-foreground" />
     <span className="whitespace-nowrap text-sm text-muted-foreground">Your ad here</span>
