@@ -58,7 +58,7 @@ export const CampaignSideNav = () => {
           title="Support"
           className={itemBase}
         >
-          <Settings className="h-5 w-5" />
+          <CircleHelp className="h-5 w-5" />
         </a>
       </nav>
 
