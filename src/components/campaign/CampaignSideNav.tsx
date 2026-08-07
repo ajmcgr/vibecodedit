@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, DollarSign, Settings } from 'lucide-react';
+import { Home, Compass, DollarSign, CircleHelp } from 'lucide-react';
 
 const SUPPORT_MAILTO = 'mailto:alex@trylaunch.ai?subject=Vibe%20Coded%20It%20support';
 
