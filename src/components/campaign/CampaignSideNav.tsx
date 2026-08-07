@@ -33,10 +33,10 @@ export const CampaignSideNav = () => {
             <Home className="h-5 w-5" />
           </a>
           <Link
-            to="/"
+            to="/ideas"
             aria-label="Explore"
             title="Explore"
-            className={`${itemBase} ${active('/')}`}
+            className={`${itemBase} ${active('/ideas')}`}
           >
             <Compass className="h-5 w-5" />
           </Link>
@@ -71,7 +71,7 @@ export const CampaignSideNav = () => {
           <Home className="h-5 w-5" />
           Home
         </a>
-        <Link to="/" aria-label="Explore" className={`${mobileItem} ${activeMobile('/')}`}>
+        <Link to="/ideas" aria-label="Explore" className={`${mobileItem} ${activeMobile('/ideas')}`}>
           <Compass className="h-5 w-5" />
           Explore
         </Link>
