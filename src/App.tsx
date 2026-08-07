@@ -15,6 +15,8 @@ import AdRail from "@/components/campaign/AdRail";
 const VibeCodedIt = lazy(() => import("./pages/VibeCodedIt"));
 const VibeCodedItCollections = lazy(() => import("./pages/VibeCodedItCollections"));
 const Submit = lazy(() => import("./pages/Submit"));
+const Ideas = lazy(() => import("./pages/Ideas"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -172,6 +174,9 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<VibeCodedIt />} />
             <Route path="/collections" element={<VibeCodedItCollections />} />
+            <Route path="/ideas" element={<Ideas />} />
+            <Route path="/ideas/:slug" element={<Ideas />} />
+
             <Route path="/submit" element={<Submit />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
