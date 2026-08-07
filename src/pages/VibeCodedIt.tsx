@@ -248,7 +248,7 @@ const VibeCodedIt = () => {
       {!searchTerm && rawCount > 0 && (
         <section className="lg:pl-20">
           <div className="w-full px-4 pt-6 text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base sm:text-lg text-muted-foreground">
               <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added
             </p>
           </div>

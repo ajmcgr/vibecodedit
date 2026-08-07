@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, Loader2, Rocket, Sparkles } from 'lucide-react';
+import { ArrowRight, Loader2, Sparkles } from 'lucide-react';
 
 
 import { Button } from '@/components/ui/button';
@@ -192,9 +192,9 @@ const Submit = () => {
         <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24">
           {done ? (
             <div className="rounded-xl border bg-card p-8 text-center">
-              <Rocket className="mx-auto h-10 w-10 text-primary" />
+              <span className="text-4xl" aria-hidden="true">🎱</span>
               <h1 className="mt-4 text-2xl font-bold tracking-tight">
-                Your app is now live on Vibe Coded It 🚀
+                Your app is now live on Vibe Coded It 🎱
               </h1>
               <p className="mt-3 text-muted-foreground">
                 Want more founders to discover your startup?

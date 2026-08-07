@@ -44,7 +44,7 @@ const buildHtml = (opts: {
 
   // Body
   html += '<tr><td style="padding:40px 40px 44px 40px;">';
-  html += '<h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:700;color:#111827;">' + app + ' is live! \uD83D\uDE80</h1>';
+  html += '<h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:700;color:#111827;">' + app + ' is live! \uD83C\uDFB1</h1>';
   html += '<p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#374151;">Hi ' + name + ', thanks for adding your app. ';
   html += '<strong>' + app + '</strong> is now on the Vibe Coded It wall for everyone to discover.</p>';
   html += '<p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#374151;">Want a more complete launch experience? List on Launch to get upvotes, founder feedback, a public profile, and rankings in front of the world\u2019s largest vibe coding community.</p>';
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: FROM,
         to: [email],
-        subject: appName + ' is live on Vibe Coded It \uD83D\uDE80',
+        subject: appName + ' is live on Vibe Coded It \uD83C\uDFB1',
         html: buildHtml({ founderName, appName, launchUrl }),
       }),
     });
