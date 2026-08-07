@@ -221,7 +221,7 @@ const VibeCodedIt = () => {
               Vibe Coded ___ ?
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-sm sm:text-xl text-muted-foreground">
-              Launch your vibe coded startup in under a minute for free and join our growing community of founders.
+              Launch your vibe coded startup in under a minute for free and join our growing community of {appCount} vibe coded apps.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
               <Button className="gap-2" onClick={handleAddYourApp}>
@@ -244,16 +244,6 @@ const VibeCodedIt = () => {
         </section>
       )}
 
-      {/* App count — below hero, above the wall */}
-      {!searchTerm && rawCount > 0 && (
-        <section className="lg:pl-20">
-          <div className="w-full px-4 pt-6 text-center">
-            <p className="text-base sm:text-lg text-muted-foreground">
-              <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added
-            </p>
-          </div>
-        </section>
-      )}
 
 
       {/* Apps title + app count + view toggle */}
