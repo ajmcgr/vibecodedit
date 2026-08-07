@@ -38,8 +38,8 @@ const buildHtml = (opts: {
   html += '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e8eaee;border-radius:12px;">';
 
   // Header with logo
-  html += '<tr><td align="center" style="padding:32px 32px 28px 32px;border-bottom:1px solid #e8eaee;">';
-  html += '<a href="' + SITE + '" style="text-decoration:none;"><img src="' + LOGO + '" alt="Vibe Coded It" width="200" style="display:block;width:200px;max-width:70%;height:auto;border:0;outline:none;" /></a>';
+  html += '<tr><td align="center" style="padding:32px 32px 28px 32px;border-bottom:1px solid #e8eaee;background-color:#ffffff;">';
+  html += '<a href="' + SITE + '" style="text-decoration:none;background-color:#ffffff;"><img src="' + LOGO + '" alt="Vibe Coded It" width="200" style="display:block;width:200px;max-width:70%;height:auto;border:0;outline:none;background-color:#ffffff;" /></a>';
   html += '</td></tr>';
 
   // Body
