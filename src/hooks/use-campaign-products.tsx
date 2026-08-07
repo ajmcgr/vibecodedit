@@ -16,6 +16,8 @@ export interface BuilderWallProduct {
   url?: string;
   /** True for tiles created through vibecodedit.com/submit. */
   isSubmission?: boolean;
+  /** Timestamp used to rank the wall newest-first across both sources. */
+  sortAt?: string;
 }
 
 const PRODUCT_SELECT = `
@@ -44,6 +46,7 @@ const mapRows = (rows: any[], categoryMap: Map<number, string>, isCampaign: bool
         .map((pm: any) => pm.users?.username)
         .filter(Boolean)[0],
       isCampaign,
+      sortAt: p.launch_date || undefined,
     }));
 
 /**
@@ -111,6 +114,7 @@ export const useCampaignProducts = (limit = 32) =>
         isCampaign: true,
         isSubmission: true,
         url: s.website_url,
+        sortAt: s.created_at || undefined,
       }));
 
       const campaignProducts = mapRows(
@@ -168,7 +172,9 @@ export const useCampaignProducts = (limit = 32) =>
       const seen = new Set(campaignProducts.map((p) => p.id));
       const filler = mapRows(recentRows, categoryMap, false).filter((p) => !seen.has(p.id));
 
-      const all = [...submissions, ...campaignProducts, ...filler];
+      const all = [...submissions, ...campaignProducts, ...filler].sort(
+        (a, b) => new Date(b.sortAt || 0).getTime() - new Date(a.sortAt || 0).getTime()
+      );
       return limit > 0 ? all.slice(0, limit) : all;
     },
     staleTime: 5 * 60 * 1000,
