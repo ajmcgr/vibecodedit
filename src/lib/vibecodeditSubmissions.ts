@@ -74,12 +74,11 @@ const isSafeUrl = (raw: string) => {
   }
 };
 
-export type FieldErrors = Partial<Record<keyof SubmissionInput | 'screenshot' | 'logo' | 'consent' | 'form', string>>;
+export type FieldErrors = Partial<Record<keyof SubmissionInput | 'screenshot' | 'logo' | 'form', string>>;
 
 export const validateSubmission = (
   input: SubmissionInput,
-  files: { screenshot: File | null; logo: File | null },
-  consent: boolean
+  files: { screenshot: File | null; logo: File | null }
 ): FieldErrors => {
   const errors: FieldErrors = {};
   const text = (v: string) => (v ?? '').trim();
@@ -124,8 +123,6 @@ export const validateSubmission = (
     if (!ACCEPTED_IMAGE_TYPES.includes(files.logo.type)) errors.logo = 'Use a PNG, JPG, WEBP or GIF.';
     else if (files.logo.size > MAX_UPLOAD_BYTES) errors.logo = 'Logos must be under 5MB.';
   }
-
-  if (!consent) errors.consent = 'Please agree before submitting.';
 
   return errors;
 };

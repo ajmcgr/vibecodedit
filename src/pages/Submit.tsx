@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignSideNav from '@/components/campaign/CampaignSideNav';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,7 +54,6 @@ const Submit = () => {
   const [form, setForm] = useState<SubmissionInput>(emptyForm);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
-  const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<SubmissionInput | null>(null);
@@ -147,7 +145,7 @@ const Submit = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const found = validateSubmission(form, { screenshot, logo }, consent);
+    const found = validateSubmission(form, { screenshot, logo });
     setErrors(found);
     if (Object.keys(found).length) return;
 
@@ -335,19 +333,6 @@ const Submit = () => {
                 </Field>
 
 
-                <div className="flex items-start gap-3 rounded-lg bg-muted/30 p-4">
-                  <Checkbox
-                    id="consent"
-                    checked={consent}
-                    onCheckedChange={(v) => setConsent(v === true)}
-                    className="mt-0.5"
-                  />
-                  <Label htmlFor="consent" className="text-sm font-normal leading-5 text-muted-foreground">
-                    I agree for my app, name, description and uploaded images to appear publicly on
-                    Vibe Coded It.
-                  </Label>
-                </div>
-                {errors.consent && <p className="text-xs text-destructive">{errors.consent}</p>}
                 {errors.form && <p className="text-sm text-destructive">{errors.form}</p>}
 
                 <Button type="submit" size="lg" className="w-full gap-2" disabled={submitting}>
