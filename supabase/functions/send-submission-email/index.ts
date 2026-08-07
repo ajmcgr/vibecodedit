@@ -48,6 +48,11 @@ const buildHtml = (opts: {
   html += '<p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#374151;">Hi ' + name + ', thanks for adding your app. ';
   html += '<strong>' + app + '</strong> is now on the Vibe Coded It wall for everyone to discover.</p>';
   html += '<p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#374151;">Want a more complete launch experience? List on Launch to get upvotes, founder feedback, a public profile, and rankings in front of the world\u2019s largest vibe coding community.</p>';
+  html += '<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:#206dcb;border-radius:8px;">';
+  html += '<a href="' + SITE + '" style="display:inline-block;padding:15px 28px;font-size:16px;font-weight:600;color:#ffffff;text-decoration:none;">See it on Vibe Coded It \u2192</a>';
+  html += '</td></tr></table>';
+  html += '<p style="margin:28px 0 20px 0;font-size:15px;line-height:1.6;color:#374151;">';
+  html += '<a href="' + launchUrl + '" style="color:#206dcb;text-decoration:none;">List it on Launch \u2192</a></p>';
   html += '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7f8fa;border:1px solid #e8eaee;border-radius:10px;margin:0 0 28px 0;"><tr><td style="padding:20px 22px;">';
   html += '<p style="margin:0 0 12px 0;font-size:15px;font-weight:600;color:#111827;">What you get on Launch</p>';
   html += '<p style="margin:0 0 8px 0;font-size:15px;line-height:1.5;color:#374151;"><span style="color:#206dcb;">\u2713</span> Appear on Launch rankings and newsletters</p>';
@@ -55,11 +60,6 @@ const buildHtml = (opts: {
   html += '<p style="margin:0 0 8px 0;font-size:15px;line-height:1.5;color:#374151;"><span style="color:#206dcb;">\u2713</span> Earn a permanent, SEO-friendly product page</p>';
   html += '<p style="margin:0;font-size:15px;line-height:1.5;color:#374151;"><span style="color:#206dcb;">\u2713</span> Get in front of thousands of founders</p>';
   html += '</td></tr></table>';
-  html += '<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:#206dcb;border-radius:8px;">';
-  html += '<a href="' + SITE + '" style="display:inline-block;padding:15px 28px;font-size:16px;font-weight:600;color:#ffffff;text-decoration:none;">See it on Vibe Coded It \u2192</a>';
-  html += '</td></tr></table>';
-  html += '<p style="margin:28px 0 0 0;font-size:15px;line-height:1.6;color:#374151;">';
-  html += '<a href="' + launchUrl + '" style="color:#206dcb;text-decoration:none;">List it on Launch \u2192</a></p>';
 
   html += '</td></tr>';
 
