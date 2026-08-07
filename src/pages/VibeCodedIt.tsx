@@ -253,8 +253,8 @@ const VibeCodedIt = () => {
               <h1 className="text-2xl font-bold tracking-tight">
                 {searchTerm ? <>Results for &ldquo;{searchTerm}&rdquo;</> : 'Apps'}
               </h1>
-              <p className="mt-2 text-sm text-muted-foreground leading-5">
-                {searchTerm ? (
+              {searchTerm && (
+                <p className="mt-2 text-sm text-muted-foreground leading-5">
                   <button
                     type="button"
                     onClick={clearSearch}
@@ -262,12 +262,8 @@ const VibeCodedIt = () => {
                   >
                     Clear search
                   </button>
-                ) : (
-                  rawCount > 0 && (
-                    <><span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
-                  )
-                )}
-              </p>
+                </p>
+              )}
             </div>
             <ViewToggle
               view={wallView}
