@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, DollarSign, Settings } from 'lucide-react';
+import { Home, Compass, DollarSign, CircleHelp } from 'lucide-react';
 
 const SUPPORT_MAILTO = 'mailto:alex@trylaunch.ai?subject=Vibe%20Coded%20It%20support';
 
@@ -58,7 +58,7 @@ export const CampaignSideNav = () => {
           title="Support"
           className={itemBase}
         >
-          <Settings className="h-5 w-5" />
+          <CircleHelp className="h-5 w-5" />
         </a>
       </nav>
 
@@ -86,7 +86,7 @@ export const CampaignSideNav = () => {
           Advertise
         </a>
         <a href={SUPPORT_MAILTO} aria-label="Support" className={mobileItem}>
-          <Settings className="h-5 w-5" />
+          <CircleHelp className="h-5 w-5" />
           Support
         </a>
       </nav>
