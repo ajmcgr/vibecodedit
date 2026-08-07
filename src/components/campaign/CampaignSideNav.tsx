@@ -86,7 +86,7 @@ export const CampaignSideNav = () => {
           Advertise
         </a>
         <a href={SUPPORT_MAILTO} aria-label="Support" className={mobileItem}>
-          <Settings className="h-5 w-5" />
+          <CircleHelp className="h-5 w-5" />
           Support
         </a>
       </nav>
