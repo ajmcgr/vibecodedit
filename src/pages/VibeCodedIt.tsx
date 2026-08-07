@@ -244,6 +244,17 @@ const VibeCodedIt = () => {
         </section>
       )}
 
+      {/* App count — below hero, above the wall */}
+      {!searchTerm && rawCount > 0 && (
+        <section className="lg:pl-20">
+          <div className="w-full px-4 pt-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added
+            </p>
+          </div>
+        </section>
+      )}
+
 
       {/* Apps title + app count + view toggle */}
       <section id="apps" className="lg:pl-20 scroll-mt-20">
