@@ -61,37 +61,24 @@ const AppContent = () => {
               </div>
               <div className="lg:pl-20">
                 <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24">
-                  <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
-                    <div>
-                      <div className="h-8 w-56 rounded-md bg-muted/60 animate-pulse" />
-                      <div className="mt-3 h-4 w-80 max-w-full rounded bg-muted/50 animate-pulse" />
-                      <div className="mt-8 space-y-5">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                          <div key={i} className="space-y-2">
-                            <div className="h-4 w-28 rounded bg-muted/50 animate-pulse" />
-                            <div className="h-10 w-full rounded-md bg-muted/40 animate-pulse" />
-                          </div>
-                        ))}
-                        <div className="h-20 w-full rounded-lg bg-muted/30 animate-pulse" />
-                        <div className="h-11 w-full rounded-md bg-muted/60 animate-pulse" />
-                      </div>
-                    </div>
-                    <div className="rounded-xl border border-border bg-card p-6">
-                      <div className="h-6 w-3/4 rounded bg-muted/60 animate-pulse" />
-                      <div className="mt-3 space-y-2">
-                        <div className="h-4 w-full rounded bg-muted/50 animate-pulse" />
-                        <div className="h-4 w-5/6 rounded bg-muted/50 animate-pulse" />
-                      </div>
-                      <div className="mt-5 space-y-2">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div key={i} className="h-4 w-4/5 rounded bg-muted/40 animate-pulse" />
-                        ))}
-                      </div>
-                      <div className="mt-6 h-12 w-full rounded-md bg-muted/60 animate-pulse" />
+                  <div className="mx-auto w-full max-w-2xl">
+                    <div className="h-8 w-56 rounded-md bg-muted/60 animate-pulse" />
+                    <div className="mt-3 h-4 w-80 max-w-full rounded bg-muted/50 animate-pulse" />
+                    <div className="mt-6 h-32 w-full rounded-xl border border-border bg-muted/30 animate-pulse" />
+                    <div className="mt-8 space-y-5">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="h-4 w-28 rounded bg-muted/50 animate-pulse" />
+                          <div className="h-10 w-full rounded-md bg-muted/40 animate-pulse" />
+                        </div>
+                      ))}
+                      <div className="h-20 w-full rounded-lg bg-muted/30 animate-pulse" />
+                      <div className="h-11 w-full rounded-md bg-muted/60 animate-pulse" />
                     </div>
                   </div>
                 </div>
               </div>
+
               <span className="sr-only">Loading</span>
             </div>
           ) : isCampaignCollections ? (

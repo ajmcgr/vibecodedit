@@ -320,10 +320,11 @@ const Submit = () => {
 
                 <Field
                   id="logo"
-                  label="Logo (optional)"
+                  label="Icon (optional)"
                   error={errors.logo}
-                  hint={logo ? `Selected: ${logo.name}` : 'Square works best. Max 5MB.'}
+                  hint={logo ? `Selected: ${logo.name}` : 'Square image (1:1). PNG, JPG or WEBP. Max 5MB.'}
                 >
+
                   <Input
                     id="logo"
                     type="file"

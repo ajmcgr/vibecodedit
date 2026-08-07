@@ -244,6 +244,17 @@ const VibeCodedIt = () => {
         </section>
       )}
 
+      {/* App count — below hero, above the wall */}
+      {!searchTerm && rawCount > 0 && (
+        <section className="lg:pl-20">
+          <div className="w-full px-4 pt-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added
+            </p>
+          </div>
+        </section>
+      )}
+
 
       {/* Apps title + app count + view toggle */}
       <section id="apps" className="lg:pl-20 scroll-mt-20">
@@ -253,8 +264,8 @@ const VibeCodedIt = () => {
               <h1 className="text-2xl font-bold tracking-tight">
                 {searchTerm ? <>Results for &ldquo;{searchTerm}&rdquo;</> : 'Apps'}
               </h1>
-              <p className="mt-2 text-sm text-muted-foreground leading-5">
-                {searchTerm ? (
+              {searchTerm && (
+                <p className="mt-2 text-sm text-muted-foreground leading-5">
                   <button
                     type="button"
                     onClick={clearSearch}
@@ -262,12 +273,8 @@ const VibeCodedIt = () => {
                   >
                     Clear search
                   </button>
-                ) : (
-                  rawCount > 0 && (
-                    <><span className="font-semibold text-foreground">{appCount}</span> vibe coded apps added</>
-                  )
-                )}
-              </p>
+                </p>
+              )}
             </div>
             <ViewToggle
               view={wallView}
