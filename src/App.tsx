@@ -15,6 +15,8 @@ import AdRail from "@/components/campaign/AdRail";
 const VibeCodedIt = lazy(() => import("./pages/VibeCodedIt"));
 const VibeCodedItCollections = lazy(() => import("./pages/VibeCodedItCollections"));
 const Submit = lazy(() => import("./pages/Submit"));
+const Ideas = lazy(() => import("./pages/Ideas"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
