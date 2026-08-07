@@ -215,8 +215,7 @@ const Submit = () => {
               </div>
             </div>
           ) : (
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
-              <div>
+            <div className="mx-auto w-full max-w-2xl">
               <h1 className="text-2xl font-bold tracking-tight">Submit Your App</h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 Add your app to the Vibe Coded It wall. No account needed — it publishes instantly.
@@ -356,34 +355,6 @@ const Submit = () => {
                 </Button>
 
               </form>
-              </div>
-
-              <aside className="lg:sticky lg:top-24 lg:self-start">
-                <div className="rounded-xl border border-border bg-card p-6">
-                  <h2 className="text-lg font-semibold text-foreground">Want a more complete launch experience?</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    List on Launch to get upvotes, founder feedback, a public profile, and rankings
-                    in front of the world’s largest vibe coding community.
-                  </p>
-                  <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                    {[
-                      'Appear on Launch rankings and newsletters',
-                      'Build a founder profile and collect reviews',
-                      'Earn a permanent, SEO-friendly product page',
-                      'Get in front of thousands of founders',
-                    ].map((benefit) => (
-                      <li key={benefit} className="flex items-start gap-2">
-                        <span className="text-primary">✓</span> {benefit}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button asChild size="lg" className="mt-6 h-12 w-full gap-2 text-base">
-                    <a href={launchSubmitUrl()} target="_blank" rel="noopener noreferrer">
-                      List it on Launch <ArrowRight className="h-5 w-5" />
-                    </a>
-                  </Button>
-                </div>
-              </aside>
             </div>
           )}
         </div>
