@@ -64,6 +64,9 @@ export const CampaignSideNav = () => {
           >
             <DollarSign className="h-5 w-5" />
           </a>
+          <a {...X_LINK_PROPS} className={itemBase}>
+            <XIcon className="h-5 w-5" />
+          </a>
         </div>
 
         <a
@@ -98,6 +101,10 @@ export const CampaignSideNav = () => {
         >
           <DollarSign className="h-5 w-5" />
           Advertise
+        </a>
+        <a {...X_LINK_PROPS} aria-label="X" className={mobileItem}>
+          <XIcon className="h-5 w-5" />
+          X
         </a>
         <a href={SUPPORT_MAILTO} aria-label="Support" className={mobileItem}>
           <CircleHelp className="h-5 w-5" />
