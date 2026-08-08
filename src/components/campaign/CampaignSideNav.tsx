@@ -1,6 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, DollarSign, CircleHelp } from 'lucide-react';
 
+const XIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const X_LINK_PROPS = {
+  href: 'https://x.com/vibecodedit',
+  target: '_blank',
+  rel: 'noopener noreferrer',
+  'aria-label': 'X',
+  title: 'X',
+};
+
 const SUPPORT_MAILTO = 'mailto:alex@trylaunch.ai?subject=Vibe%20Coded%20It%20support';
 
 const itemBase =
@@ -50,6 +64,9 @@ export const CampaignSideNav = () => {
           >
             <DollarSign className="h-5 w-5" />
           </a>
+          <a {...X_LINK_PROPS} className={itemBase}>
+            <XIcon className="h-5 w-5" />
+          </a>
         </div>
 
         <a
@@ -84,6 +101,10 @@ export const CampaignSideNav = () => {
         >
           <DollarSign className="h-5 w-5" />
           Advertise
+        </a>
+        <a {...X_LINK_PROPS} aria-label="X" className={mobileItem}>
+          <XIcon className="h-5 w-5" />
+          X
         </a>
         <a href={SUPPORT_MAILTO} aria-label="Support" className={mobileItem}>
           <CircleHelp className="h-5 w-5" />
