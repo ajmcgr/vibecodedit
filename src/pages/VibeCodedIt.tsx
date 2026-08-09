@@ -397,8 +397,8 @@ const VibeCodedIt = () => {
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq) => (
               <AccordionItem key={faq.q} value={faq.q}>
-                <AccordionTrigger className="text-left text-base sm:text-lg">{faq.q}</AccordionTrigger>
-                <AccordionContent className="text-base leading-7 text-muted-foreground">
+                <AccordionTrigger className="text-left text-sm sm:text-lg">{faq.q}</AccordionTrigger>
+                <AccordionContent className="text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
