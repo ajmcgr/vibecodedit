@@ -289,7 +289,7 @@ const VibeCodedIt = () => {
           <div className="rounded-lg border border-border bg-card p-8 md:p-12">
             <h2 className="mb-8 text-center font-reckless text-3xl sm:text-4xl">An Open Letter</h2>
 
-            <div className="space-y-5 text-lg leading-8 text-foreground/90">
+            <div className="space-y-5 text-base leading-7 text-foreground/90 sm:text-lg sm:leading-8">
               <p>
                 <strong>Hey,</strong>
               </p>
@@ -371,13 +371,13 @@ const VibeCodedIt = () => {
                     loading="lazy"
                     className="mb-1 hidden h-10 w-auto dark:block"
                   />
-                  <h3 className="text-xl font-bold">Alex MacGregor</h3>
-                  <p className="mb-2 text-lg font-bold text-muted-foreground">Founder, Launch</p>
+                  <h3 className="text-lg font-bold sm:text-xl">Alex MacGregor</h3>
+                  <p className="mb-2 text-base font-bold text-muted-foreground sm:text-lg">Founder, Launch</p>
                   <a
                     href="https://x.com/alexmacgregor__"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-base text-primary hover:underline"
+                    className="text-sm text-primary hover:underline sm:text-base"
                   >
                     Follow me on X
                   </a>
@@ -397,8 +397,8 @@ const VibeCodedIt = () => {
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq) => (
               <AccordionItem key={faq.q} value={faq.q}>
-                <AccordionTrigger className="text-left text-base sm:text-lg">{faq.q}</AccordionTrigger>
-                <AccordionContent className="text-base leading-7 text-muted-foreground">
+                <AccordionTrigger className="text-left text-sm sm:text-lg">{faq.q}</AccordionTrigger>
+                <AccordionContent className="text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -419,7 +419,7 @@ const VibeCodedIt = () => {
         <div className="container mx-auto max-w-7xl px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-xl text-center">
             <h2 className="font-reckless text-3xl sm:text-4xl">Get the Newsletter</h2>
-            <p className="mt-3 text-base text-muted-foreground sm:text-lg">
+            <p className="mt-3 text-sm text-muted-foreground sm:text-lg">
               Subscribe for free. Weekly updates on launches, no filler.
             </p>
 
