@@ -324,6 +324,7 @@ const AdRail = () => {
       <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-[60] border-t border-border bg-background/95 py-2 backdrop-blur lg:hidden">
         <AdBanner reverse />
       </div>
+    </>
   );
 };
 
