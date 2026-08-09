@@ -82,7 +82,7 @@ export const CampaignSideNav = () => {
       {/* Mobile bottom bar */}
       <nav
         aria-label="Vibe Coded It navigation"
-        className="fixed inset-x-0 bottom-[calc(7rem+env(safe-area-inset-bottom))] z-50 flex h-14 items-center justify-around border-t border-border bg-background lg:hidden"
+        className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-50 flex h-14 items-center justify-around border-t border-border bg-background lg:hidden"
       >
         <a href="/" aria-label="Home" className={mobileItem}>
           <Home className="h-5 w-5" />
