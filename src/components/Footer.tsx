@@ -30,17 +30,19 @@ const XIcon = ({ className }: { className?: string }) => (
 
 export const Footer = (_props: FooterProps = {}) => (
   <footer>
-    <div className="container mx-auto px-4 max-w-7xl py-8 text-center text-sm text-muted-foreground">
+    <div className="container mx-auto px-4 max-w-7xl py-6 md:py-8 text-center text-sm text-muted-foreground">
       <a
         href="https://x.com/vibecodedit"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Follow us on X"
-        className="inline-flex items-center justify-center mb-2 hover:text-primary transition-colors"
+        className="inline-flex items-center justify-center hover:text-primary transition-colors"
       >
         <XIcon className="h-5 w-5" />
       </a>
-      <Copyright />
+      <div className="mt-1">
+        <Copyright />
+      </div>
     </div>
   </footer>
 );
