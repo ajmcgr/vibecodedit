@@ -180,10 +180,21 @@ body {
   .builder-wall-track { animation: none; }
 }
 
+/* Reserve space for fixed campaign header on all screen sizes */
+body {
+  padding-top: 64px;
+}
+
 /* Mobile ad marquees: reserve space for fixed header, ad bar, footer, and ad bar */
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   html.has-mobile-marquee body {
     padding-top: calc(112px + env(safe-area-inset-top));
+    padding-bottom: calc(112px + env(safe-area-inset-bottom) + env(safe-area-inset-bottom));
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  html.has-mobile-marquee body {
+    padding-top: calc(120px + env(safe-area-inset-top));
     padding-bottom: calc(112px + env(safe-area-inset-bottom) + env(safe-area-inset-bottom));
   }
 }
