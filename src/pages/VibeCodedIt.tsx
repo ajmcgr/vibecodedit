@@ -419,7 +419,7 @@ const VibeCodedIt = () => {
         <div className="container mx-auto max-w-7xl px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-xl text-center">
             <h2 className="font-reckless text-3xl sm:text-4xl">Get the Newsletter</h2>
-            <p className="mt-3 text-base text-muted-foreground sm:text-lg">
+            <p className="mt-3 text-sm text-muted-foreground sm:text-lg">
               Subscribe for free. Weekly updates on launches, no filler.
             </p>
 
