@@ -289,7 +289,7 @@ const VibeCodedIt = () => {
           <div className="rounded-lg border border-border bg-card p-8 md:p-12">
             <h2 className="mb-8 text-center font-reckless text-3xl sm:text-4xl">An Open Letter</h2>
 
-            <div className="space-y-5 text-lg leading-8 text-foreground/90">
+            <div className="space-y-5 text-base leading-7 text-foreground/90 sm:text-lg sm:leading-8">
               <p>
                 <strong>Hey,</strong>
               </p>
