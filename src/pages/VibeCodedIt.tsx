@@ -371,13 +371,13 @@ const VibeCodedIt = () => {
                     loading="lazy"
                     className="mb-1 hidden h-10 w-auto dark:block"
                   />
-                  <h3 className="text-xl font-bold">Alex MacGregor</h3>
-                  <p className="mb-2 text-lg font-bold text-muted-foreground">Founder, Launch</p>
+                  <h3 className="text-lg font-bold sm:text-xl">Alex MacGregor</h3>
+                  <p className="mb-2 text-base font-bold text-muted-foreground sm:text-lg">Founder, Launch</p>
                   <a
                     href="https://x.com/alexmacgregor__"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-base text-primary hover:underline"
+                    className="text-sm text-primary hover:underline sm:text-base"
                   >
                     Follow me on X
                   </a>
