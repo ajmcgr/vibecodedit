@@ -147,16 +147,15 @@ Deno.serve(async (req) => {
       .eq('status', 'sent');
     const seen = new Set((posted ?? []).map((p: any) => `${p.source}:${p.source_id}`));
 
-    // Candidates: newest vibecodedit submissions + newest launched Launch products.
     const [subs, prods] = await Promise.all([
       supabase
         .from('vibecodedit_submissions_public')
-        .select('id, app_name, website_url, description, founder_username, created_at')
+        .select('id, app_name, website_url, description, founder_username, screenshot_url, logo_url, created_at')
         .order('created_at', { ascending: false })
         .limit(20),
       supabase
         .from('products')
-        .select('id, name, tagline, slug, launch_date')
+        .select('id, name, tagline, slug, launch_date, product_media(url, type)')
         .eq('status', 'launched')
         .order('launch_date', { ascending: false })
         .limit(20),
@@ -167,6 +166,17 @@ Deno.serve(async (req) => {
       source_id: string;
       at: string;
       text: string;
+      imageUrl: string | null;
+    };
+
+    const pickImage = (p: any) => {
+      const media = (p.product_media || []) as any[];
+      return (
+        media.find((m) => m.type === 'screenshot')?.url ||
+        media.find((m) => m.type === 'thumbnail')?.url ||
+        media.find((m) => m.type === 'icon')?.url ||
+        null
+      );
     };
 
     const candidates: Candidate[] = [
@@ -175,17 +185,20 @@ Deno.serve(async (req) => {
         source_id: String(s.id),
         at: s.created_at,
         text: buildTweet(s.app_name, s.description, s.website_url, s.founder_username),
+        imageUrl: s.screenshot_url || s.logo_url || null,
       })),
       ...((prods.data ?? []) as any[]).map((p) => ({
         source: 'launch' as const,
         source_id: String(p.id),
         at: p.launch_date ?? new Date(0).toISOString(),
         text: buildTweet(p.name, p.tagline ?? '', `${SITE}/`),
+        imageUrl: pickImage(p),
       })),
     ]
       .filter((c) => !seen.has(`${c.source}:${c.source_id}`))
       .sort((a, b) => (a.at < b.at ? 1 : -1))
       .slice(0, limit);
+
 
     if (!candidates.length) return json({ posted: 0, message: 'Nothing new to post' });
     if (dryRun) return json({ dryRun: true, candidates });
