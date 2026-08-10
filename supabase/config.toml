@@ -13,3 +13,6 @@ verify_jwt = false
 verify_jwt = false
 
 
+
+[functions.og-share]
+verify_jwt = false
