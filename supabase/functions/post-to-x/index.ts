@@ -205,11 +205,21 @@ Deno.serve(async (req) => {
 
     const results: unknown[] = [];
     for (const c of candidates) {
-      const authorization = await oauthHeader('POST', API_URL);
-      const res = await fetch(API_URL, {
+      let mediaId: string | null = null;
+      if (c.imageUrl) {
+        mediaId = await uploadImageToX(c.imageUrl);
+      }
+
+      const tweetBody: any = { text: c.text };
+      if (mediaId) {
+        tweetBody.media = { media_ids: [mediaId] };
+      }
+
+      const authorization = await oauthHeader('POST', TWEETS_URL);
+      const res = await fetch(TWEETS_URL, {
         method: 'POST',
         headers: { Authorization: authorization, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: c.text }),
+        body: JSON.stringify(tweetBody),
       });
       const raw = await res.text();
       if (!res.ok) {
@@ -224,7 +234,7 @@ Deno.serve(async (req) => {
           },
           { onConflict: 'source,source_id' },
         );
-        results.push({ source_id: c.source_id, ok: false, status: res.status, details: raw });
+        results.push({ source_id: c.source_id, ok: false, status: res.status, details: raw, mediaId });
         continue;
       }
       const tweetId = (() => {
@@ -238,8 +248,9 @@ Deno.serve(async (req) => {
         { source: c.source, source_id: c.source_id, tweet_id: tweetId, tweet_text: c.text, status: 'sent', error: null },
         { onConflict: 'source,source_id' },
       );
-      results.push({ source_id: c.source_id, ok: true, tweet_id: tweetId });
+      results.push({ source_id: c.source_id, ok: true, tweet_id: tweetId, mediaId });
     }
+
 
     return json({ posted: results.filter((r: any) => r.ok).length, results });
   } catch (err: any) {
