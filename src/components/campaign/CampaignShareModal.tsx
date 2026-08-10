@@ -7,6 +7,7 @@ import { CAMPAIGN_NAME, trackCampaignEvent } from '@/lib/campaign';
 import { CAMPAIGN_ORIGIN } from '@/lib/campaignHost';
 import type { BuilderWallProduct } from '@/hooks/use-campaign-products';
 import defaultProductIcon from '@/assets/default-product-icon.png';
+import { buildProductShareUrl } from '@/lib/productShare';
 
 const CAMPAIGN_URL = CAMPAIGN_ORIGIN;
 
@@ -84,7 +85,7 @@ export const CampaignShareModal = ({ product, onClose }: CampaignShareModalProps
             onClick={() =>
               share(
                 'linkedin',
-                `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(launchUrl)}`
+                `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
               )
             }
           >
