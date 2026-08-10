@@ -9,3 +9,7 @@ verify_jwt = false
 [functions.enrich-product]
 verify_jwt = false
 
+[functions.post-to-x]
+verify_jwt = false
+
+
