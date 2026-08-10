@@ -4,7 +4,8 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const API_URL = 'https://api.x.com/2/tweets';
+const TWEETS_URL = 'https://api.x.com/2/tweets';
+const MEDIA_UPLOAD_URL = 'https://upload.x.com/1.1/media/upload.json';
 const SITE = 'https://vibecodedit.com';
 
 const CONSUMER_KEY = Deno.env.get('TWITTER_CONSUMER_KEY') ?? '';
@@ -27,7 +28,7 @@ async function hmacSha1(key: string, msg: string) {
   return btoa(String.fromCharCode(...new Uint8Array(sig)));
 }
 
-/** OAuth 1.0a header. IMPORTANT: JSON body params are NOT part of the signature. */
+/** OAuth 1.0a header. IMPORTANT: JSON body params and form data are NOT part of the signature. */
 async function oauthHeader(method: string, url: string) {
   const params: Record<string, string> = {
     oauth_consumer_key: CONSUMER_KEY,
@@ -70,6 +71,52 @@ function buildTweet(name: string, tagline: string, url: string, maker?: string |
   return `${head}${body}${tail}`;
 }
 
+async function uploadImageToX(imageUrl: string): Promise<string | null> {
+  try {
+    const imageRes = await fetch(imageUrl, { method: 'GET' });
+    if (!imageRes.ok) {
+      console.error(`Failed to fetch image: ${imageRes.status} ${imageRes.statusText}`);
+      return null;
+    }
+    const bytes = new Uint8Array(await imageRes.arrayBuffer());
+    if (!bytes.length) return null;
+
+    // base64 encode without hitting function argument limits
+    const mediaData = btoa(
+      Array.from(bytes)
+        .map((b) => String.fromCharCode(b))
+        .join(''),
+    );
+
+
+    const form = new FormData();
+    form.append('media_data', mediaData);
+
+    const auth = await oauthHeader('POST', MEDIA_UPLOAD_URL);
+    const uploadRes = await fetch(MEDIA_UPLOAD_URL, {
+      method: 'POST',
+      headers: { Authorization: auth },
+      body: form,
+    });
+    const raw = await uploadRes.text();
+    if (!uploadRes.ok) {
+      console.error(`X media upload failed [${uploadRes.status}]: ${raw}`);
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    const mediaId = parsed?.media_id_string;
+    if (!mediaId) {
+      console.error('No media_id_string in upload response:', raw);
+      return null;
+    }
+    return mediaId;
+  } catch (err) {
+    console.error('uploadImageToX error:', err);
+    return null;
+  }
+}
+
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -105,16 +152,15 @@ Deno.serve(async (req) => {
       .eq('status', 'sent');
     const seen = new Set((posted ?? []).map((p: any) => `${p.source}:${p.source_id}`));
 
-    // Candidates: newest vibecodedit submissions + newest launched Launch products.
     const [subs, prods] = await Promise.all([
       supabase
         .from('vibecodedit_submissions_public')
-        .select('id, app_name, website_url, description, founder_username, created_at')
+        .select('id, app_name, website_url, description, founder_username, screenshot_url, logo_url, created_at')
         .order('created_at', { ascending: false })
         .limit(20),
       supabase
         .from('products')
-        .select('id, name, tagline, slug, launch_date')
+        .select('id, name, tagline, slug, launch_date, product_media(url, type)')
         .eq('status', 'launched')
         .order('launch_date', { ascending: false })
         .limit(20),
@@ -125,6 +171,17 @@ Deno.serve(async (req) => {
       source_id: string;
       at: string;
       text: string;
+      imageUrl: string | null;
+    };
+
+    const pickImage = (p: any) => {
+      const media = (p.product_media || []) as any[];
+      return (
+        media.find((m) => m.type === 'screenshot')?.url ||
+        media.find((m) => m.type === 'thumbnail')?.url ||
+        media.find((m) => m.type === 'icon')?.url ||
+        null
+      );
     };
 
     const candidates: Candidate[] = [
@@ -133,28 +190,41 @@ Deno.serve(async (req) => {
         source_id: String(s.id),
         at: s.created_at,
         text: buildTweet(s.app_name, s.description, s.website_url, s.founder_username),
+        imageUrl: s.screenshot_url || s.logo_url || null,
       })),
       ...((prods.data ?? []) as any[]).map((p) => ({
         source: 'launch' as const,
         source_id: String(p.id),
         at: p.launch_date ?? new Date(0).toISOString(),
         text: buildTweet(p.name, p.tagline ?? '', `${SITE}/`),
+        imageUrl: pickImage(p),
       })),
     ]
       .filter((c) => !seen.has(`${c.source}:${c.source_id}`))
       .sort((a, b) => (a.at < b.at ? 1 : -1))
       .slice(0, limit);
 
+
     if (!candidates.length) return json({ posted: 0, message: 'Nothing new to post' });
     if (dryRun) return json({ dryRun: true, candidates });
 
     const results: unknown[] = [];
     for (const c of candidates) {
-      const authorization = await oauthHeader('POST', API_URL);
-      const res = await fetch(API_URL, {
+      let mediaId: string | null = null;
+      if (c.imageUrl) {
+        mediaId = await uploadImageToX(c.imageUrl);
+      }
+
+      const tweetBody: any = { text: c.text };
+      if (mediaId) {
+        tweetBody.media = { media_ids: [mediaId] };
+      }
+
+      const authorization = await oauthHeader('POST', TWEETS_URL);
+      const res = await fetch(TWEETS_URL, {
         method: 'POST',
         headers: { Authorization: authorization, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: c.text }),
+        body: JSON.stringify(tweetBody),
       });
       const raw = await res.text();
       if (!res.ok) {
@@ -169,7 +239,7 @@ Deno.serve(async (req) => {
           },
           { onConflict: 'source,source_id' },
         );
-        results.push({ source_id: c.source_id, ok: false, status: res.status, details: raw });
+        results.push({ source_id: c.source_id, ok: false, status: res.status, details: raw, mediaId });
         continue;
       }
       const tweetId = (() => {
@@ -183,8 +253,9 @@ Deno.serve(async (req) => {
         { source: c.source, source_id: c.source_id, tweet_id: tweetId, tweet_text: c.text, status: 'sent', error: null },
         { onConflict: 'source,source_id' },
       );
-      results.push({ source_id: c.source_id, ok: true, tweet_id: tweetId });
+      results.push({ source_id: c.source_id, ok: true, tweet_id: tweetId, mediaId });
     }
+
 
     return json({ posted: results.filter((r: any) => r.ok).length, results });
   } catch (err: any) {
