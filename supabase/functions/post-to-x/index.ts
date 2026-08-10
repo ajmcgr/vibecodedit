@@ -81,8 +81,13 @@ async function uploadImageToX(imageUrl: string): Promise<string | null> {
     const bytes = new Uint8Array(await imageRes.arrayBuffer());
     if (!bytes.length) return null;
 
-    // base64 encode
-    const mediaData = btoa(String.fromCharCode(...bytes));
+    // base64 encode without hitting function argument limits
+    const mediaData = btoa(
+      Array.from(bytes)
+        .map((b) => String.fromCharCode(b))
+        .join(''),
+    );
+
 
     const form = new FormData();
     form.append('media_data', mediaData);
