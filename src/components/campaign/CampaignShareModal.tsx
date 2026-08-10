@@ -19,9 +19,11 @@ export const CampaignShareModal = ({ product, onClose }: CampaignShareModalProps
   const [copied, setCopied] = useState(false);
   if (!product) return null;
 
-  const launchUrl = `https://trylaunch.ai/launch/${product.slug}`;
+  // Per-product share URL: crawlers get this product's screenshot as the card.
+  const shareUrl = buildProductShareUrl(product);
   const founder = product.founder ? `@${product.founder}` : 'a Launch founder';
-  const shareText = `${product.name} by ${founder} — built with AI and shipped on Launch.\n\nPart of ${CAMPAIGN_NAME}: ${CAMPAIGN_URL}\n\n${launchUrl}`;
+  const shareText = `${product.name} by ${founder} — built with AI and shipped on Launch.\n\nPart of ${CAMPAIGN_NAME}: ${CAMPAIGN_URL}\n\n${shareUrl}`;
+
 
   const share = (network: string, url: string) => {
     trackCampaignEvent('builder_wall_share_clicked', product.id);
