@@ -4,7 +4,8 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const API_URL = 'https://api.x.com/2/tweets';
+const TWEETS_URL = 'https://api.x.com/2/tweets';
+const MEDIA_UPLOAD_URL = 'https://upload.x.com/1.1/media/upload.json';
 const SITE = 'https://vibecodedit.com';
 
 const CONSUMER_KEY = Deno.env.get('TWITTER_CONSUMER_KEY') ?? '';
@@ -27,7 +28,7 @@ async function hmacSha1(key: string, msg: string) {
   return btoa(String.fromCharCode(...new Uint8Array(sig)));
 }
 
-/** OAuth 1.0a header. IMPORTANT: JSON body params are NOT part of the signature. */
+/** OAuth 1.0a header. IMPORTANT: JSON body params and form data are NOT part of the signature. */
 async function oauthHeader(method: string, url: string) {
   const params: Record<string, string> = {
     oauth_consumer_key: CONSUMER_KEY,
@@ -69,6 +70,47 @@ function buildTweet(name: string, tagline: string, url: string, maker?: string |
   const body = room > 20 ? `\n\n${clamp(firstSentence(tagline), room)}` : '';
   return `${head}${body}${tail}`;
 }
+
+async function uploadImageToX(imageUrl: string): Promise<string | null> {
+  try {
+    const imageRes = await fetch(imageUrl, { method: 'GET' });
+    if (!imageRes.ok) {
+      console.error(`Failed to fetch image: ${imageRes.status} ${imageRes.statusText}`);
+      return null;
+    }
+    const bytes = new Uint8Array(await imageRes.arrayBuffer());
+    if (!bytes.length) return null;
+
+    // base64 encode
+    const mediaData = btoa(String.fromCharCode(...bytes));
+
+    const form = new FormData();
+    form.append('media_data', mediaData);
+
+    const auth = await oauthHeader('POST', MEDIA_UPLOAD_URL);
+    const uploadRes = await fetch(MEDIA_UPLOAD_URL, {
+      method: 'POST',
+      headers: { Authorization: auth },
+      body: form,
+    });
+    const raw = await uploadRes.text();
+    if (!uploadRes.ok) {
+      console.error(`X media upload failed [${uploadRes.status}]: ${raw}`);
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    const mediaId = parsed?.media_id_string;
+    if (!mediaId) {
+      console.error('No media_id_string in upload response:', raw);
+      return null;
+    }
+    return mediaId;
+  } catch (err) {
+    console.error('uploadImageToX error:', err);
+    return null;
+  }
+}
+
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
