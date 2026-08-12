@@ -100,7 +100,7 @@ const html = (card: Card, canonical: string) => {
     '<!doctype html><html lang="en"><head><meta charset="utf-8" />' +
     `<title>${esc(title)}</title>` +
     `<meta name="description" content="${esc(description)}" />` +
-    `<link rel="canonical" href="${esc(card.destination)}" />` +
+    `<link rel="canonical" href="${esc(canonical)}" />` +
     '<meta property="og:type" content="website" />' +
     '<meta property="og:site_name" content="Vibe Coded It" />' +
     `<meta property="og:title" content="${esc(title)}" />` +
@@ -112,8 +112,7 @@ const html = (card: Card, canonical: string) => {
     `<meta name="twitter:title" content="${esc(title)}" />` +
     `<meta name="twitter:description" content="${esc(description)}" />` +
     `<meta name="twitter:image" content="${esc(card.image)}" />` +
-    `<meta http-equiv="refresh" content="0;url=${esc(card.destination)}" />` +
-    `</head><body><p><a href="${esc(card.destination)}">${esc(card.name)}</a></p></body></html>`
+    `</head><body><p><a href="${esc(card.destination)}" rel="nofollow">${esc(card.name)}</a></p></body></html>`
   );
 };
 
