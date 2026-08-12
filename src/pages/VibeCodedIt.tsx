@@ -232,6 +232,14 @@ const VibeCodedIt = () => {
         <section className="relative pt-8 sm:pt-10 lg:pl-20">
           <div className="w-full px-4">
             <div className="relative w-full px-6 py-8 sm:py-10 text-center bg-[#fcfcfc] dark:bg-card dark:border dark:border-border rounded-2xl">
+            <button
+              type="button"
+              onClick={hideHero}
+              aria-label="Hide intro"
+              className="absolute right-3 top-3 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
             <h1 className="mx-auto max-w-3xl text-3xl sm:text-7xl font-semibold tracking-tight text-foreground">
               vibe coded ___ ?
             </h1>
