@@ -97,7 +97,22 @@ const VibeCodedIt = () => {
   const [subscribeMessage, setSubscribeMessage] = useState<string | null>(null);
   const [subscribeError, setSubscribeError] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [showHero, setShowHero] = useState(true);
+  const [showHero, setShowHero] = useState(() => {
+    try {
+      return localStorage.getItem('vibecodedit:hero-hidden') !== '1';
+    } catch {
+      return true;
+    }
+  });
+
+  const hideHero = () => {
+    setShowHero(false);
+    try {
+      localStorage.setItem('vibecodedit:hero-hidden', '1');
+    } catch {
+      /* ignore */
+    }
+  };
 
   const { data: launchedCount } = useLaunchedProductCount();
   const rawCount = launchedCount || 0;
