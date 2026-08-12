@@ -79,6 +79,10 @@ export const CampaignSideNav = () => {
           <Home className="h-5 w-5" />
           Home
         </a>
+        <Link to="/submit" aria-label="Submit" className={`${mobileItem} ${activeMobile('/submit')}`}>
+          <Plus className="h-5 w-5" />
+          Submit
+        </Link>
         <Link to="/ideas" aria-label="Explore" className={`${mobileItem} ${activeMobile('/ideas')}`}>
           <Compass className="h-5 w-5" />
           Explore
@@ -92,10 +96,6 @@ export const CampaignSideNav = () => {
         >
           <DollarSign className="h-5 w-5" />
           Advertise
-        </a>
-        <a {...X_LINK_PROPS} aria-label="X" className={mobileItem}>
-          <XIcon className="h-5 w-5" />
-          X
         </a>
         <a href={SUPPORT_MAILTO} aria-label="Support" className={mobileItem}>
           <CircleHelp className="h-5 w-5" />
