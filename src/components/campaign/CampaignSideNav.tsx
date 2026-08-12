@@ -33,6 +33,14 @@ export const CampaignSideNav = () => {
             <Home className="h-5 w-5" />
           </a>
           <Link
+            to="/submit"
+            aria-label="Submit"
+            title="Submit"
+            className={`${itemBase} ${active('/submit')}`}
+          >
+            <Plus className="h-5 w-5" />
+          </Link>
+          <Link
             to="/ideas"
             aria-label="Explore"
             title="Explore"
@@ -49,9 +57,6 @@ export const CampaignSideNav = () => {
             className={itemBase}
           >
             <DollarSign className="h-5 w-5" />
-          </a>
-          <a {...X_LINK_PROPS} className={itemBase}>
-            <XIcon className="h-5 w-5" />
           </a>
         </div>
 
