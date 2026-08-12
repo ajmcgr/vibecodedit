@@ -236,7 +236,7 @@ const VibeCodedIt = () => {
               type="button"
               onClick={hideHero}
               aria-label="Hide intro"
-              className="absolute right-3 top-3 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="absolute right-2 top-2 sm:right-3 sm:top-3 rounded-full bg-background/90 p-2 text-muted-foreground shadow-sm ring-1 ring-border transition-colors hover:bg-muted hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </button>
