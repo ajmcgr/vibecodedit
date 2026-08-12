@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -97,7 +97,22 @@ const VibeCodedIt = () => {
   const [subscribeMessage, setSubscribeMessage] = useState<string | null>(null);
   const [subscribeError, setSubscribeError] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [showHero, setShowHero] = useState(true);
+  const [showHero, setShowHero] = useState(() => {
+    try {
+      return localStorage.getItem('vibecodedit:hero-hidden') !== '1';
+    } catch {
+      return true;
+    }
+  });
+
+  const hideHero = () => {
+    setShowHero(false);
+    try {
+      localStorage.setItem('vibecodedit:hero-hidden', '1');
+    } catch {
+      /* ignore */
+    }
+  };
 
   const { data: launchedCount } = useLaunchedProductCount();
   const rawCount = launchedCount || 0;
@@ -217,6 +232,14 @@ const VibeCodedIt = () => {
         <section className="relative pt-8 sm:pt-10 lg:pl-20">
           <div className="w-full px-4">
             <div className="relative w-full px-6 py-8 sm:py-10 text-center bg-[#fcfcfc] dark:bg-card dark:border dark:border-border rounded-2xl">
+            <button
+              type="button"
+              onClick={hideHero}
+              aria-label="Hide intro"
+              className="absolute right-3 top-3 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
             <h1 className="mx-auto max-w-3xl text-3xl sm:text-7xl font-semibold tracking-tight text-foreground">
               vibe coded ___ ?
             </h1>
