@@ -224,7 +224,7 @@ const VibeCodedIt = () => {
               Launch your vibe coded startup in under a minute for free and join our growing community of {appCount} vibe coded apps.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
-              <Button className="gap-2" onClick={handleAddYourApp}>
+              <Button className="gap-2 px-5 py-2.5" onClick={handleAddYourApp}>
                 Submit Your App
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -406,7 +406,7 @@ const VibeCodedIt = () => {
           </Accordion>
 
           <div className="mt-10 text-center">
-            <Button size="lg" className="h-12 gap-2 px-8 text-base" onClick={handleAddYourApp}>
+            <Button size="lg" className="h-12 gap-2 px-8 py-3 text-base" onClick={handleAddYourApp}>
               Submit Your App
               <ArrowRight className="h-4 w-4" />
             </Button>
