@@ -198,7 +198,7 @@ const Submit = () => {
                 Want more founders to discover your startup?
               </p>
               <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button asChild size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
+                <Button asChild size="lg" variant="outline" className="w-full gap-2 px-6 py-3 sm:w-auto">
                   <a href="/">View your listing</a>
                 </Button>
                 <Button asChild size="lg" className="w-full gap-2 sm:w-auto">
@@ -244,7 +244,7 @@ const Submit = () => {
                     aria-label="Your product URL"
                     className="flex-1"
                   />
-                  <Button type="button" onClick={handleAutofill} disabled={autofilling} className="gap-2 sm:w-auto">
+                  <Button type="button" onClick={handleAutofill} disabled={autofilling} className="gap-2 px-5 py-2.5 sm:w-auto">
                     {autofilling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                     {autofilling ? 'Analysing…' : 'Autofill'}
                   </Button>
@@ -335,7 +335,7 @@ const Submit = () => {
 
                 {errors.form && <p className="text-sm text-destructive">{errors.form}</p>}
 
-                <Button type="submit" size="lg" className="w-full gap-2" disabled={submitting}>
+                <Button type="submit" size="lg" className="w-full gap-2 px-6 py-3" disabled={submitting}>
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                   Submit Your App
                 </Button>
