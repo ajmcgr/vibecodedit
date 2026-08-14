@@ -329,7 +329,7 @@ export const BuilderWall = ({
       <div className={`w-full ${isCompact ? 'space-y-2' : 'space-y-8'}`}>
         {isCompact ? (
           <>
-            <AdRow startIndex={0} view={view} perRow={perRow} />
+            <AdRow startIndex={0} view={view} perRow={perRow} count={8} />
             <div className={gridClass}>
               {visible.map((product) => (
                 <BuilderCard
