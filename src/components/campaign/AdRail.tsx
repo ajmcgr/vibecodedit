@@ -31,7 +31,7 @@ const useSponsorSlots = () =>
         .lte('start_date', today)
         .gte('end_date', today)
         .order('position', { ascending: true })
-        .limit(6);
+        .limit(8);
 
       const ids = ((slots as any[]) || []).map((s) => s.product_id).filter(Boolean);
       if (!ids.length) return [];
