@@ -28,7 +28,12 @@ serve(async (req) => {
       email,
       reactivate_existing: true,
       send_welcome_email: true,
+      utm_source: source || 'vibecodedit',
     };
+
+    if (Array.isArray(tags) && tags.length) {
+      (payload as any).tags = tags;
+    }
 
     // Tag user for daily digest segmentation in Beehiiv
     if (dailyDigest) {
