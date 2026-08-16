@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { email, dailyDigest } = await req.json();
+    const { email, dailyDigest, source, tags } = await req.json();
 
     if (!email) {
       throw new Error('Email is required');
