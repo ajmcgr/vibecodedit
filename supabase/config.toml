@@ -1,6 +1,6 @@
 project_id = "gzpypxgdkxdynovploxn"
 
-[functions.subscribe-to-newsletter]
+[functions.vibecodedit-newsletter]
 verify_jwt = false
 
 [functions.send-submission-email]

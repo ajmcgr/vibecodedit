@@ -172,7 +172,7 @@ const VibeCodedIt = () => {
     setSubscribeError(false);
 
     try {
-      const { error } = await supabase.functions.invoke('subscribe-to-newsletter', {
+      const { error } = await supabase.functions.invoke('vibecodedit-newsletter', {
         body: { email: email.trim() },
       });
 
