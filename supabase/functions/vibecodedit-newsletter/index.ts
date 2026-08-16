@@ -31,9 +31,11 @@ serve(async (req) => {
       utm_source: source || 'vibecodedit',
     };
 
-    if (Array.isArray(tags) && tags.length) {
-      (payload as any).tags = tags;
-    }
+    // Always tag vibecodedit so this site's subscribers stay segmentable
+    const tagSet = new Set<string>(['vibecodedit']);
+    if (Array.isArray(tags)) tags.filter(Boolean).forEach((t: string) => tagSet.add(String(t)));
+    (payload as any).tags = Array.from(tagSet);
+
 
     // Tag user for daily digest segmentation in Beehiiv
     if (dailyDigest) {
