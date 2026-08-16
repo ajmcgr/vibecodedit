@@ -213,7 +213,7 @@ export const launchSubmitUrl = (input?: Partial<SubmissionInput>) => {
 /** Fire-and-forget Beehiiv newsletter enrollment for a submitter. */
 export const subscribeSubmitterToNewsletter = async (input: SubmissionInput) => {
   try {
-    await supabase.functions.invoke('subscribe-to-newsletter', {
+    await supabase.functions.invoke('vibecodedit-newsletter', {
       body: {
         email: input.founder_email.trim().toLowerCase(),
         source: 'vibecodedit_submit',
