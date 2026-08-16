@@ -19,6 +19,7 @@ import {
   findDuplicate,
   launchSubmitUrl,
   sendSubmissionEmail,
+  subscribeSubmitterToNewsletter,
   validateSubmission,
   type FieldErrors,
   type SubmissionInput,
@@ -158,6 +159,7 @@ const Submit = () => {
       }
       await createSubmission(form, { screenshot: screenshot as File, logo });
       void sendSubmissionEmail(form);
+      void subscribeSubmitterToNewsletter(form);
       trackCampaignEvent('campaign_submission_completed');
       setDone(form);
       window.scrollTo(0, 0);

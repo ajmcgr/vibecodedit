@@ -210,6 +210,21 @@ export const launchSubmitUrl = (input?: Partial<SubmissionInput>) => {
   return `https://trylaunch.ai/submit?${params.toString()}`;
 };
 
+/** Fire-and-forget Beehiiv newsletter enrollment for a submitter. */
+export const subscribeSubmitterToNewsletter = async (input: SubmissionInput) => {
+  try {
+    await supabase.functions.invoke('subscribe-to-newsletter', {
+      body: {
+        email: input.founder_email.trim().toLowerCase(),
+        source: 'vibecodedit_submit',
+        tags: ['vibecodedit', 'submitter'],
+      },
+    });
+  } catch (err) {
+    console.error('Newsletter enrollment failed', err);
+  }
+};
+
 /** Fire-and-forget confirmation email for a new submission. */
 export const sendSubmissionEmail = async (input: SubmissionInput) => {
   try {
