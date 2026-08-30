@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CAMPAIGN_SLUG } from '@/lib/campaign';
+import { SUBMISSION_MEDIA_OVERRIDES } from '@/lib/submissionMediaOverrides';
 
 export interface BuilderWallProduct {
   id: string;
