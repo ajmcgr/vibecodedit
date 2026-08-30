@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CAMPAIGN_SLUG } from '@/lib/campaign';
+import { SUBMISSION_MEDIA_OVERRIDES } from '@/lib/submissionMediaOverrides';
 
 export interface BuilderWallProduct {
   id: string;
@@ -107,8 +108,9 @@ export const useCampaignProducts = (limit = 32) =>
         name: s.app_name,
         tagline: s.description,
         slug: '',
-        iconUrl: s.logo_url || undefined,
-        screenshotUrl: s.screenshot_url || undefined,
+        iconUrl: SUBMISSION_MEDIA_OVERRIDES[s.id]?.iconUrl || s.logo_url || undefined,
+        screenshotUrl:
+          SUBMISSION_MEDIA_OVERRIDES[s.id]?.screenshotUrl || s.screenshot_url || undefined,
         category: s.category || undefined,
         founder: s.founder_username || s.founder_name || undefined,
         isCampaign: true,
