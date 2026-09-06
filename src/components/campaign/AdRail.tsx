@@ -27,38 +27,61 @@ const useSponsorSlots = () =>
 
       const { data: slots } = await supabase
         .from('sponsored_products')
-        .select('id, product_id, position, start_date, end_date')
+        .select(
+          'id, product_id, position, start_date, end_date, ad_type, custom_image_url, custom_title, custom_description, custom_target_url'
+        )
         .lte('start_date', today)
         .gte('end_date', today)
         .order('position', { ascending: true })
         .limit(8);
 
-      const ids = ((slots as any[]) || []).map((s) => s.product_id).filter(Boolean);
-      if (!ids.length) return [];
+      const rows = ((slots as any[]) || []).filter(
+        (s) => s.product_id || (s.custom_title && s.custom_target_url),
+      );
 
-      const { data: products } = await supabase
-        .from('products')
-        .select('id, name, tagline, slug, product_media(url, type)')
-        .in('id', ids)
-        .eq('status', 'launched');
+      const ids = rows.map((s) => s.product_id).filter(Boolean);
+
+      const { data: products } = ids.length
+        ? await supabase
+            .from('products')
+            .select('id, name, tagline, slug, product_media(url, type)')
+            .in('id', ids)
+            .eq('status', 'launched')
+        : { data: [] as any[] };
 
       const byId = new Map<string, any>(((products as any[]) || []).map((p) => [p.id, p]));
 
-      return ((slots as any[]) || [])
-        .map((slot) => byId.get(slot.product_id))
-        .filter(Boolean)
-        .map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          tagline: p.tagline,
-          href: `https://trylaunch.ai/launch/${p.slug}?source=vibecodedit&utm_medium=sponsor`,
-          iconUrl: p.product_media?.find((m: any) => m.type === 'icon')?.url,
-          screenshotUrl:
-            p.product_media?.find((m: any) => m.type === 'screenshot')?.url ||
-            p.product_media?.find((m: any) => m.type === 'thumbnail')?.url,
-        }));
+      return rows
+        .map((slot): SponsorSlot | null => {
+          // Custom creative booked directly on Launch (no product listing).
+          if (!slot.product_id) {
+            return {
+              id: slot.id,
+              name: slot.custom_title,
+              tagline: slot.custom_description ?? null,
+              href: slot.custom_target_url,
+              iconUrl: slot.custom_image_url || undefined,
+              screenshotUrl: slot.custom_image_url || undefined,
+            };
+          }
+
+          const p = byId.get(slot.product_id);
+          if (!p) return null;
+          return {
+            id: slot.id,
+            name: p.name,
+            tagline: p.tagline,
+            href: `https://trylaunch.ai/launch/${p.slug}?source=vibecodedit&utm_medium=sponsor`,
+            iconUrl: p.product_media?.find((m: any) => m.type === 'icon')?.url,
+            screenshotUrl:
+              p.product_media?.find((m: any) => m.type === 'screenshot')?.url ||
+              p.product_media?.find((m: any) => m.type === 'thumbnail')?.url,
+          };
+        })
+        .filter(Boolean) as SponsorSlot[];
     },
   });
+
 
 const open = (href: string, id: string) => {
   trackCampaignEvent('sponsor_slot_clicked', id);
