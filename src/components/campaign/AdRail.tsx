@@ -219,7 +219,6 @@ const AdPlaceholder = ({ view = 'grid' }: { view?: AdView }) => {
       </span>
     </a>
 
-    </a>
   );
 };
 
