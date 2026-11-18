@@ -362,7 +362,7 @@ const VibeCodedIt = () => {
               <p>
                 PS - I created a free playbook{' '}
                 <a
-                  href="https://docs.google.com/presentation/d/19J_RAtPgpW_Xx5Uk5HsJhiHJJ1ajtCB-7AYB_zLT6f4/edit?usp=sharing"
+                  href="https://vibecodebook.org/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
